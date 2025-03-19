@@ -11,7 +11,8 @@ import {
   FileText, 
   Settings, 
   ChevronLeft, 
-  ChevronRight 
+  ChevronRight,
+  Music
 } from 'lucide-react';
 
 type SidebarItem = {
@@ -22,6 +23,7 @@ type SidebarItem = {
 
 const sidebarItems: SidebarItem[] = [
   { title: 'Dashboard', path: '/', icon: LayoutDashboard },
+  { title: 'Grupo de Música', path: '/music-management', icon: Music },
   { title: 'Tabela', path: '/table-template', icon: Table },
   { title: 'Gráficos', path: '/chart-template', icon: BarChart4 },
   { title: 'Cartões', path: '/card-template', icon: CreditCard },

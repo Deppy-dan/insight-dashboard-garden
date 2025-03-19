@@ -11,6 +11,7 @@ import TableTemplate from "./pages/TableTemplate";
 import ChartTemplate from "./pages/ChartTemplate";
 import CardTemplate from "./pages/CardTemplate";
 import StatTemplate from "./pages/StatTemplate";
+import MusicGroupManagement from "./pages/MusicGroupManagement";
 
 const queryClient = new QueryClient();
 
@@ -27,6 +28,7 @@ const App = () => (
             <Route path="/chart-template" element={<ChartTemplate />} />
             <Route path="/card-template" element={<CardTemplate />} />
             <Route path="/stat-template" element={<StatTemplate />} />
+            <Route path="/music-management" element={<MusicGroupManagement />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AnimatePresence>
