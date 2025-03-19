@@ -4,15 +4,14 @@ import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { 
   LayoutDashboard, 
-  BarChart4, 
-  PieChart, 
-  Table, 
-  CreditCard, 
-  FileText, 
+  Music, 
+  ListMusic, 
+  CalendarDays, 
+  Users, 
+  Headphones, 
   Settings, 
   ChevronLeft, 
   ChevronRight,
-  Music
 } from 'lucide-react';
 
 type SidebarItem = {
@@ -22,19 +21,26 @@ type SidebarItem = {
 };
 
 const sidebarItems: SidebarItem[] = [
-  { title: 'Dashboard', path: '/', icon: LayoutDashboard },
   { title: 'Grupo de Música', path: '/music-management', icon: Music },
-  { title: 'Tabela', path: '/table-template', icon: Table },
-  { title: 'Gráficos', path: '/chart-template', icon: BarChart4 },
-  { title: 'Cartões', path: '/card-template', icon: CreditCard },
-  { title: 'Estatísticas', path: '/stat-template', icon: PieChart },
-  { title: 'Relatórios', path: '/reports', icon: FileText },
+  { title: 'Músicos', path: '/musicians', icon: Users },
+  { title: 'Repertório', path: '/songs', icon: ListMusic },
+  { title: 'Escalas', path: '/schedules', icon: CalendarDays },
+  { title: 'Ensaios', path: '/rehearsals', icon: Headphones },
   { title: 'Configurações', path: '/settings', icon: Settings },
 ];
 
 const Sidebar = () => {
   const [collapsed, setCollapsed] = useState(false);
   const location = useLocation();
+
+  // Dispatch custom event for Layout component
+  const toggleCollapsed = () => {
+    const newCollapsedState = !collapsed;
+    setCollapsed(newCollapsedState);
+    window.dispatchEvent(
+      new CustomEvent('sidebarStateChange', { detail: { collapsed: newCollapsedState } })
+    );
+  };
 
   return (
     <aside
@@ -46,11 +52,11 @@ const Sidebar = () => {
       <div className="flex items-center justify-between p-4 h-16 border-b border-border">
         {!collapsed && (
           <h1 className="text-xl font-display font-semibold animate-fade-in">
-            Admin<span className="text-primary">Pro</span>
+            Música<span className="text-primary">Igreja</span>
           </h1>
         )}
         <button
-          onClick={() => setCollapsed(!collapsed)}
+          onClick={toggleCollapsed}
           className={cn(
             "p-2 rounded-full text-sidebar-foreground hover:bg-sidebar-accent transition-all",
             collapsed && "mx-auto"
@@ -112,7 +118,7 @@ const Sidebar = () => {
           {!collapsed && (
             <div className="ml-3">
               <p className="text-sm font-medium">Administrador</p>
-              <p className="text-xs text-muted-foreground">admin@exemplo.com</p>
+              <p className="text-xs text-muted-foreground">admin@igreja.com</p>
             </div>
           )}
         </div>

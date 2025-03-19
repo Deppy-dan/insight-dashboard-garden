@@ -25,11 +25,12 @@ interface DataTableProps {
   columns: {
     title: string;
     key: string;
-    render?: (value: any, row: any) => React.ReactNode;
+    render?: (value: any, row?: any) => React.ReactNode;
   }[];
   data: any[];
   searchable?: boolean;
   downloadable?: boolean;
+  searchPlaceholder?: string;
 }
 
 const DataTable: React.FC<DataTableProps> = ({
@@ -39,6 +40,7 @@ const DataTable: React.FC<DataTableProps> = ({
   data,
   searchable = true,
   downloadable = true,
+  searchPlaceholder = "Pesquisar",
 }) => {
   const [searchQuery, setSearchQuery] = React.useState('');
   
@@ -68,7 +70,7 @@ const DataTable: React.FC<DataTableProps> = ({
                 <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   type="search"
-                  placeholder="Pesquisar"
+                  placeholder={searchPlaceholder}
                   className="pl-9 h-9 w-[180px] md:w-[240px]"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}

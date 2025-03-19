@@ -23,7 +23,6 @@ import {
 } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
-import { ChartContainer, ChartLegend, ChartLegendContent } from '@/components/ui/chart';
 import { Label } from '@/components/ui/label';
 import { BarChart4, CalendarIcon, Clock, Music, UserCheck } from 'lucide-react';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
@@ -96,7 +95,67 @@ const musiciansData = [
   },
 ];
 
-// Table columns configuration
+// Mock data for songs
+const songsData = [
+  { 
+    id: 1, 
+    titulo: 'Grande é o Senhor', 
+    tom: 'G', 
+    estilo: 'Louvor', 
+    ultimaVez: '15/05/2023',
+    vezesTocada: 12
+  },
+  { 
+    id: 2, 
+    titulo: 'Deus é Deus', 
+    tom: 'D', 
+    estilo: 'Adoração', 
+    ultimaVez: '28/05/2023',
+    vezesTocada: 8
+  },
+  { 
+    id: 3, 
+    titulo: 'Corpo e Família', 
+    tom: 'E', 
+    estilo: 'Congregacional', 
+    ultimaVez: '04/06/2023',
+    vezesTocada: 6
+  },
+  { 
+    id: 4, 
+    titulo: 'Tua Graça me Basta', 
+    tom: 'C', 
+    estilo: 'Adoração', 
+    ultimaVez: '11/06/2023',
+    vezesTocada: 5
+  },
+  { 
+    id: 5, 
+    titulo: 'Águas Purificadoras', 
+    tom: 'D', 
+    estilo: 'Louvor', 
+    ultimaVez: '18/06/2023',
+    vezesTocada: 4
+  },
+  { 
+    id: 6, 
+    titulo: 'Revelation Song', 
+    tom: 'D', 
+    estilo: 'Adoração', 
+    ultimaVez: '25/06/2023',
+    vezesTocada: 3
+  },
+  { 
+    id: 7, 
+    titulo: 'Maravilhosa Graça', 
+    tom: 'G', 
+    estilo: 'Congregacional', 
+    ultimaVez: '02/07/2023',
+    vezesTocada: 2
+  },
+];
+
+// Table columns configuration for musicians
 const musicianColumns = [
   { title: 'ID', key: 'id' },
   { title: 'Nome', key: 'nome' },
@@ -135,6 +194,30 @@ const musicianColumns = [
         </span>
       );
     }
+  },
+];
+
+// Table columns configuration for songs
+const songColumns = [
+  { title: 'ID', key: 'id' },
+  { title: 'Título', key: 'titulo' },
+  { title: 'Tom', key: 'tom' },
+  { title: 'Estilo', key: 'estilo' },
+  { title: 'Última Vez', key: 'ultimaVez' },
+  { 
+    title: 'Vezes Tocada', 
+    key: 'vezesTocada',
+    render: (value: number) => (
+      <div className="flex items-center">
+        <span className="font-medium">{value}</span>
+        <div className="ml-2 h-2 w-24 bg-gray-200 rounded-full overflow-hidden">
+          <div 
+            className="h-full bg-primary" 
+            style={{ width: `${Math.min(100, (value / 12) * 100)}%` }}
+          ></div>
+        </div>
+      </div>
+    )
   },
 ];
 
@@ -207,8 +290,9 @@ const MusicGroupManagement: React.FC = () => {
         className="grid grid-cols-1 gap-6"
       >
         <Tabs defaultValue="musicians">
-          <TabsList className="grid w-full md:w-auto md:inline-grid grid-cols-3 h-auto">
+          <TabsList className="grid w-full md:w-auto md:inline-grid grid-cols-4 h-auto">
             <TabsTrigger value="musicians">Músicos</TabsTrigger>
+            <TabsTrigger value="songs">Músicas</TabsTrigger>
             <TabsTrigger value="schedule">Escala</TabsTrigger>
             <TabsTrigger value="gantt">Cronograma</TabsTrigger>
           </TabsList>
@@ -226,7 +310,28 @@ const MusicGroupManagement: React.FC = () => {
                 <DataTable 
                   columns={musicianColumns}
                   data={musiciansData}
-                  searchPlaceholder="Buscar músico..."
+                  searchable={true}
+                  downloadable={true}
+                />
+              </CardContent>
+            </Card>
+          </TabsContent>
+          
+          {/* Músicas Tab */}
+          <TabsContent value="songs" className="mt-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Músicas Mais Tocadas</CardTitle>
+                <CardDescription>
+                  Gerenciamento do repertório musical e frequência de uso
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="p-0">
+                <DataTable 
+                  columns={songColumns}
+                  data={songsData}
+                  searchable={true}
+                  downloadable={true}
                 />
               </CardContent>
             </Card>
@@ -406,7 +511,7 @@ const MusicGroupManagement: React.FC = () => {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total de Músicos</CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" />
+              <UserCheck className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{musiciansData.length}</div>
