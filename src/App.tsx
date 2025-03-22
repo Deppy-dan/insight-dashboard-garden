@@ -17,6 +17,7 @@ import StatTemplate from "./pages/StatTemplate";
 import MusicGroupManagement from "./pages/MusicGroupManagement";
 import UserProfile from "./pages/UserProfile";
 import AdminDashboard from "./pages/AdminDashboard";
+import MusicManagement from "./pages/MusicManagement";
 
 const queryClient = new QueryClient();
 
@@ -44,6 +45,14 @@ const App = () => (
                 element={
                   <ProtectedRoute>
                     <MusicGroupManagement />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/musicians" 
+                element={
+                  <ProtectedRoute requireAdmin={true}>
+                    <MusicManagement />
                   </ProtectedRoute>
                 } 
               />
