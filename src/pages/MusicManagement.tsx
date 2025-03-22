@@ -114,7 +114,17 @@ const MusicManagement = () => {
 
   // Mutações
   const addSongMutation = useMutation({
-    mutationFn: addSong,
+    mutationFn: (data: z.infer<typeof songFormSchema>) => {
+      // Garantir que todos os campos obrigatórios estão presentes
+      const newSong: Omit<Song, 'id'> = {
+        title: data.title,
+        key: data.key,
+        style: data.style,
+        lastPlayed: data.lastPlayed || undefined,
+        timesPlayed: data.timesPlayed || 0
+      };
+      return addSong(newSong);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['songs'] });
       songForm.reset();
@@ -124,7 +134,7 @@ const MusicManagement = () => {
         description: "A música foi adicionada com sucesso.",
       });
     },
-    onError: (error) => {
+    onError: (error: any) => {
       toast({
         title: "Erro ao adicionar música",
         description: error.message,
@@ -134,7 +144,19 @@ const MusicManagement = () => {
   });
 
   const createScheduleMutation = useMutation({
-    mutationFn: createSchedule,
+    mutationFn: (data: z.infer<typeof scheduleFormSchema>) => {
+      // Garantir que todos os campos obrigatórios estão presentes
+      const newSchedule: Omit<Schedule, 'id'> = {
+        title: data.title,
+        date: data.date,
+        time: data.time,
+        description: data.description,
+        location: data.location,
+        musicians: data.musicians || [],
+        songs: []
+      };
+      return createSchedule(newSchedule);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['schedules'] });
       scheduleForm.reset();
@@ -144,7 +166,7 @@ const MusicManagement = () => {
         description: "O evento foi agendado com sucesso.",
       });
     },
-    onError: (error) => {
+    onError: (error: any) => {
       toast({
         title: "Erro ao agendar evento",
         description: error.message,
@@ -165,7 +187,7 @@ const MusicManagement = () => {
         description: "As músicas foram adicionadas ao evento com sucesso.",
       });
     },
-    onError: (error) => {
+    onError: (error: any) => {
       toast({
         title: "Erro ao adicionar músicas",
         description: error.message,
@@ -210,7 +232,11 @@ const MusicManagement = () => {
 
   // Formatador de data
   const formatDate = (dateString: string) => {
-    return format(parseISO(dateString), "dd 'de' MMMM 'de' yyyy", { locale: ptBR });
+    try {
+      return format(parseISO(dateString), "dd 'de' MMMM 'de' yyyy", { locale: ptBR });
+    } catch (error) {
+      return dateString;
+    }
   };
 
   if (isLoadingSongs || isLoadingMusicians || isLoadingSchedules) {

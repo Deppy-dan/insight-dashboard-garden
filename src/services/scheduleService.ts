@@ -1,4 +1,3 @@
-
 import { Schedule } from '@/types/schedule';
 import { getAllSongs } from './songService';
 
@@ -185,6 +184,47 @@ export async function addSongsToSchedule(
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve(true);
+    }, 500);
+  });
+}
+
+export async function createSchedule(schedule: Omit<Schedule, 'id'>): Promise<Schedule> {
+  // Simulando a criação de um novo ID
+  const newId = schedules.length > 0 ? Math.max(...schedules.map(s => s.id)) + 1 : 1;
+  
+  const newSchedule: Schedule = {
+    ...schedule,
+    id: newId,
+  };
+  
+  schedules.push(newSchedule);
+  
+  // Simula um atraso de rede
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(newSchedule);
+    }, 500);
+  });
+}
+
+export async function updateSchedule(id: number, scheduleUpdate: Partial<Schedule>): Promise<Schedule> {
+  const index = schedules.findIndex(s => s.id === id);
+  
+  if (index === -1) {
+    return Promise.reject(new Error(`Agendamento com ID ${id} não encontrado`));
+  }
+  
+  const updatedSchedule = {
+    ...schedules[index],
+    ...scheduleUpdate,
+  };
+  
+  schedules[index] = updatedSchedule;
+  
+  // Simula um atraso de rede
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(updatedSchedule);
     }, 500);
   });
 }
