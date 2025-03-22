@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { 
   LayoutDashboard, 
@@ -12,12 +12,15 @@ import {
   Settings, 
   ChevronLeft, 
   ChevronRight,
+  LogOut
 } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 
 type SidebarItem = {
   title: string;
   path: string;
   icon: React.ElementType;
+  adminOnly?: boolean;
 };
 
 const sidebarItems: SidebarItem[] = [
@@ -26,12 +29,14 @@ const sidebarItems: SidebarItem[] = [
   { title: 'Repertório', path: '/songs', icon: ListMusic },
   { title: 'Escalas', path: '/schedules', icon: CalendarDays },
   { title: 'Ensaios', path: '/rehearsals', icon: Headphones },
-  { title: 'Configurações', path: '/settings', icon: Settings },
+  { title: 'Configurações', path: '/settings', icon: Settings, adminOnly: true },
 ];
 
 const Sidebar = () => {
   const [collapsed, setCollapsed] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, logout, isAdmin } = useAuth();
 
   // Dispatch custom event for Layout component
   const toggleCollapsed = () => {
@@ -41,6 +46,16 @@ const Sidebar = () => {
       new CustomEvent('sidebarStateChange', { detail: { collapsed: newCollapsedState } })
     );
   };
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
+
+  // Filtra itens baseado no papel do usuário
+  const filteredItems = sidebarItems.filter(item => 
+    !item.adminOnly || (item.adminOnly && isAdmin)
+  );
 
   return (
     <aside
@@ -73,7 +88,7 @@ const Sidebar = () => {
 
       <nav className="flex-1 py-4 overflow-y-auto">
         <ul className="space-y-1 px-3">
-          {sidebarItems.map((item) => {
+          {filteredItems.map((item) => {
             const isActive = location.pathname === item.path;
             const Icon = item.icon;
 
@@ -113,15 +128,33 @@ const Sidebar = () => {
           )}
         >
           <div className="relative w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-medium">
-            A
+            {user?.name?.charAt(0) || 'U'}
           </div>
           {!collapsed && (
-            <div className="ml-3">
-              <p className="text-sm font-medium">Administrador</p>
-              <p className="text-xs text-muted-foreground">admin@igreja.com</p>
+            <div className="ml-3 flex-1">
+              <p className="text-sm font-medium">{user?.name || 'Usuário'}</p>
+              <p className="text-xs text-muted-foreground">{user?.email || 'usuario@igreja.com'}</p>
             </div>
           )}
+          {!collapsed && (
+            <button 
+              onClick={handleLogout}
+              className="text-muted-foreground hover:text-foreground transition-colors"
+              aria-label="Sair"
+            >
+              <LogOut size={18} />
+            </button>
+          )}
         </div>
+        {collapsed && (
+          <button
+            onClick={handleLogout}
+            className="mt-4 flex justify-center w-full text-muted-foreground hover:text-foreground transition-colors"
+            aria-label="Sair"
+          >
+            <LogOut size={18} />
+          </button>
+        )}
       </div>
     </aside>
   );

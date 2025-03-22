@@ -3,6 +3,8 @@ import React, { useState } from 'react';
 import { cn } from '@/lib/utils';
 import Sidebar from './Sidebar';
 import Header from './Header';
+import { useAuth } from '@/contexts/AuthContext';
+import { Navigate } from 'react-router-dom';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -10,6 +12,12 @@ interface LayoutProps {
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const { user } = useAuth();
+
+  // Redirecionar para login se não estiver autenticado
+  if (!user) {
+    return <Navigate to="/login" />;
+  }
 
   // Effect to handle sidebar collapse state from the Sidebar component
   React.useEffect(() => {

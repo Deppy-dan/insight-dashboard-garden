@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { cn } from '@/lib/utils';
-import { Bell, Moon, Search, Sun } from 'lucide-react';
+import { Bell, Moon, Search, Sun, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -10,6 +10,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { useAuth } from '@/contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 interface HeaderProps {
   sidebarCollapsed: boolean;
@@ -17,11 +19,18 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ sidebarCollapsed }) => {
   const [theme, setTheme] = React.useState<'light' | 'dark'>('light');
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
 
   const toggleTheme = () => {
     const newTheme = theme === 'light' ? 'dark' : 'light';
     setTheme(newTheme);
     document.documentElement.classList.toggle('dark', newTheme === 'dark');
+  };
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
   };
 
   return (
@@ -64,14 +73,22 @@ const Header: React.FC<HeaderProps> = ({ sidebarCollapsed }) => {
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="relative h-10 w-10 rounded-full">
               <span className="h-10 w-10 rounded-full bg-muted/70 flex items-center justify-center text-sm font-medium">
-                A
+                {user?.name?.charAt(0) || 'U'}
               </span>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56 mt-1 animate-scale-in">
-            <DropdownMenuItem className="hover:cursor-pointer">Perfil</DropdownMenuItem>
+            <DropdownMenuItem className="hover:cursor-pointer">
+              <User className="mr-2 h-4 w-4" />
+              <span>Perfil</span>
+            </DropdownMenuItem>
             <DropdownMenuItem className="hover:cursor-pointer">Configurações da conta</DropdownMenuItem>
-            <DropdownMenuItem className="hover:cursor-pointer text-destructive">Sair</DropdownMenuItem>
+            <DropdownMenuItem 
+              className="hover:cursor-pointer text-destructive"
+              onClick={handleLogout}
+            >
+              Sair
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
