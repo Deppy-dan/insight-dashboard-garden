@@ -15,6 +15,8 @@ import ChartTemplate from "./pages/ChartTemplate";
 import CardTemplate from "./pages/CardTemplate";
 import StatTemplate from "./pages/StatTemplate";
 import MusicGroupManagement from "./pages/MusicGroupManagement";
+import UserProfile from "./pages/UserProfile";
+import AdminDashboard from "./pages/AdminDashboard";
 
 const queryClient = new QueryClient();
 
@@ -28,12 +30,28 @@ const App = () => (
           <AnimatePresence mode="wait">
             <Routes>
               <Route path="/login" element={<Login />} />
-              <Route path="/" element={<Navigate to="/music-management" replace />} />
+              <Route path="/" element={<Navigate to="/profile" replace />} />
+              <Route 
+                path="/profile" 
+                element={
+                  <ProtectedRoute>
+                    <UserProfile />
+                  </ProtectedRoute>
+                } 
+              />
               <Route 
                 path="/music-management" 
                 element={
                   <ProtectedRoute>
                     <MusicGroupManagement />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/admin" 
+                element={
+                  <ProtectedRoute requireAdmin={true}>
+                    <AdminDashboard />
                   </ProtectedRoute>
                 } 
               />

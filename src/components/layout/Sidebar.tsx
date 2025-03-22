@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -12,7 +11,8 @@ import {
   Settings, 
   ChevronLeft, 
   ChevronRight,
-  LogOut
+  LogOut,
+  UserCircle
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -24,11 +24,13 @@ type SidebarItem = {
 };
 
 const sidebarItems: SidebarItem[] = [
+  { title: 'Meu Perfil', path: '/profile', icon: UserCircle },
   { title: 'Grupo de Música', path: '/music-management', icon: Music },
   { title: 'Músicos', path: '/musicians', icon: Users },
   { title: 'Repertório', path: '/songs', icon: ListMusic },
   { title: 'Escalas', path: '/schedules', icon: CalendarDays },
   { title: 'Ensaios', path: '/rehearsals', icon: Headphones },
+  { title: 'Painel Admin', path: '/admin', icon: LayoutDashboard, adminOnly: true },
   { title: 'Configurações', path: '/settings', icon: Settings, adminOnly: true },
 ];
 
@@ -38,7 +40,6 @@ const Sidebar = () => {
   const navigate = useNavigate();
   const { user, logout, isAdmin } = useAuth();
 
-  // Dispatch custom event for Layout component
   const toggleCollapsed = () => {
     const newCollapsedState = !collapsed;
     setCollapsed(newCollapsedState);
@@ -52,7 +53,6 @@ const Sidebar = () => {
     navigate('/login');
   };
 
-  // Filtra itens baseado no papel do usuário
   const filteredItems = sidebarItems.filter(item => 
     !item.adminOnly || (item.adminOnly && isAdmin)
   );
