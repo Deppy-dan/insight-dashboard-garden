@@ -16,3 +16,12 @@ export interface Musician {
   phoneNumber?: string;
   experience?: string;
 }
+
+export interface Song {
+  id: number;
+  title: string;
+  key: string;
+  style: string;
+  lastPlayed?: string;
+  timesPlayed: number;
+}

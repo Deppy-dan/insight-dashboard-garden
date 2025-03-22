@@ -1,13 +1,17 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Layout from '@/components/layout/Layout';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
 import { 
   Card, 
   CardContent, 
   CardDescription, 
   CardHeader, 
-  CardTitle 
+  CardTitle, 
+  CardFooter
 } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
@@ -22,191 +26,93 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
-import { BarChart4, CalendarIcon, Clock, Music, UserCheck } from 'lucide-react';
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { BarChart4, CalendarIcon, Clock, Music, UserCheck, PlusCircle, Check, X } from 'lucide-react';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
 import { format } from 'date-fns';
+import { useToast } from '@/hooks/use-toast';
+import { Instrument, Song } from '@/types/musician';
+import { getAllMusicians } from '@/services/musicianService';
+import { getAllSchedules, assignMusicianToSchedule, addSchedule, addSongsToSchedule } from '@/services/scheduleService';
+import { getAllSongs, addSong } from '@/services/songService';
 
-// Mock data for musicians
-const musiciansData = [
-  { 
-    id: 1, 
-    nome: 'João Silva', 
-    instrumento: 'Violão', 
-    disponibilidade: 'Manhã, Tarde', 
-    dias: 'Dom, Qua', 
-    tom: 'G, D, E', 
-    experiencia: 'Avançado' 
-  },
-  { 
-    id: 2, 
-    nome: 'Maria Oliveira', 
-    instrumento: 'Vocal', 
-    disponibilidade: 'Tarde, Noite', 
-    dias: 'Dom, Sex', 
-    tom: 'C, D, F', 
-    experiencia: 'Intermediário' 
-  },
-  { 
-    id: 3, 
-    nome: 'Carlos Santos', 
-    instrumento: 'Bateria', 
-    disponibilidade: 'Manhã, Noite', 
-    dias: 'Dom, Ter, Sáb', 
-    tom: 'Todos', 
-    experiencia: 'Avançado' 
-  },
-  { 
-    id: 4, 
-    nome: 'Ana Beatriz', 
-    instrumento: 'Teclado', 
-    disponibilidade: 'Tarde', 
-    dias: 'Dom, Qui', 
-    tom: 'C, G, A', 
-    experiencia: 'Intermediário' 
-  },
-  { 
-    id: 5, 
-    nome: 'Pedro Alves', 
-    instrumento: 'Baixo', 
-    disponibilidade: 'Noite', 
-    dias: 'Dom, Qua, Sex', 
-    tom: 'E, A, D', 
-    experiencia: 'Iniciante' 
-  },
-  { 
-    id: 6, 
-    nome: 'Luiza Ferreira', 
-    instrumento: 'Violino', 
-    disponibilidade: 'Manhã, Tarde', 
-    dias: 'Dom, Sáb', 
-    tom: 'D, A, E', 
-    experiencia: 'Avançado' 
-  },
-  { 
-    id: 7, 
-    nome: 'Fernando Costa', 
-    instrumento: 'Vocal', 
-    disponibilidade: 'Manhã, Tarde, Noite', 
-    dias: 'Dom, Ter, Qui, Sáb', 
-    tom: 'G, A, B', 
-    experiencia: 'Avançado' 
-  },
-];
+// Schemas para validação de formulários
+const addSongSchema = z.object({
+  title: z.string().min(2, { message: 'O título deve ter pelo menos 2 caracteres' }),
+  key: z.string().min(1, { message: 'Informe a tonalidade da música' }),
+  style: z.string().min(1, { message: 'Informe o estilo da música' }),
+});
 
-// Mock data for songs
-const songsData = [
-  { 
-    id: 1, 
-    titulo: 'Grande é o Senhor', 
-    tom: 'G', 
-    estilo: 'Louvor', 
-    ultimaVez: '15/05/2023',
-    vezesTocada: 12
-  },
-  { 
-    id: 2, 
-    titulo: 'Deus é Deus', 
-    tom: 'D', 
-    estilo: 'Adoração', 
-    ultimaVez: '28/05/2023',
-    vezesTocada: 8
-  },
-  { 
-    id: 3, 
-    titulo: 'Corpo e Família', 
-    tom: 'E', 
-    estilo: 'Congregacional', 
-    ultimaVez: '04/06/2023',
-    vezesTocada: 6
-  },
-  { 
-    id: 4, 
-    titulo: 'Tua Graça me Basta', 
-    tom: 'C', 
-    estilo: 'Adoração', 
-    ultimaVez: '11/06/2023',
-    vezesTocada: 5
-  },
-  { 
-    id: 5, 
-    titulo: 'Águas Purificadoras', 
-    tom: 'D', 
-    estilo: 'Louvor', 
-    ultimaVez: '18/06/2023',
-    vezesTocada: 4
-  },
-  { 
-    id: 6, 
-    titulo: 'Revelation Song', 
-    tom: 'D', 
-    estilo: 'Adoração', 
-    ultimaVez: '25/06/2023',
-    vezesTocada: 3
-  },
-  { 
-    id: 7, 
-    titulo: 'Maravilhosa Graça', 
-    tom: 'G', 
-    estilo: 'Congregacional', 
-    ultimaVez: '02/07/2023',
-    vezesTocada: 2
-  },
-];
+const addScheduleSchema = z.object({
+  title: z.string().min(2, { message: 'O título deve ter pelo menos 2 caracteres' }),
+  date: z.date({ required_error: 'Por favor, selecione uma data' }),
+  time: z.string().min(1, { message: 'Informe o horário' }),
+  location: z.string().optional(),
+  description: z.string().optional(),
+});
+
+const assignMusicianSchema = z.object({
+  scheduleId: z.number({ required_error: 'Selecione um evento' }),
+  musicianId: z.number({ required_error: 'Selecione um músico' }),
+  instrument: z.string().min(1, { message: 'Selecione um instrumento' }),
+});
+
+const addSongsToScheduleSchema = z.object({
+  scheduleId: z.number({ required_error: 'Selecione um evento' }),
+  songIds: z.array(z.number()).min(1, { message: 'Selecione pelo menos uma música' }),
+});
 
 // Table columns configuration for musicians
 const musicianColumns = [
   { title: 'ID', key: 'id' },
-  { title: 'Nome', key: 'nome' },
-  { title: 'Instrumento', key: 'instrumento' },
+  { title: 'Nome', key: 'name' },
   { 
-    title: 'Disponibilidade', 
-    key: 'disponibilidade',
-    render: (value: string) => (
+    title: 'Instrumentos', 
+    key: 'instruments',
+    render: (value: Instrument[]) => (
       <div className="flex flex-wrap gap-1">
-        {value.split(', ').map((time, index) => (
-          <Badge key={index} variant={
-            time === 'Manhã' ? 'default' : 
-            time === 'Tarde' ? 'secondary' : 
-            'outline'
-          }>
-            {time}
+        {value.map((inst, index) => (
+          <Badge key={index} variant="outline">
+            {inst}
           </Badge>
         ))}
       </div>
     )
   },
-  { title: 'Dias', key: 'dias' },
-  { title: 'Tom Preferido', key: 'tom' },
   { 
-    title: 'Experiência', 
-    key: 'experiencia',
-    render: (value: string) => {
-      let className = '';
-      if (value === 'Avançado') className = 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400';
-      else if (value === 'Intermediário') className = 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400';
-      else className = 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400';
-      
-      return (
-        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${className}`}>
-          {value}
-        </span>
-      );
-    }
+    title: 'Disponibilidade', 
+    key: 'availability',
+    render: (value: any[]) => (
+      <div className="flex flex-wrap gap-1">
+        {value.map((av, index) => (
+          <Badge key={index} variant={
+            av.period === 'manhã' ? 'default' : 
+            av.period === 'tarde' ? 'secondary' : 
+            'outline'
+          }>
+            {av.day} ({av.period})
+          </Badge>
+        ))}
+      </div>
+    )
   },
+  { title: 'Telefone', key: 'phoneNumber' },
+  { title: 'Experiência', key: 'experience' },
 ];
 
 // Table columns configuration for songs
 const songColumns = [
   { title: 'ID', key: 'id' },
-  { title: 'Título', key: 'titulo' },
-  { title: 'Tom', key: 'tom' },
-  { title: 'Estilo', key: 'estilo' },
-  { title: 'Última Vez', key: 'ultimaVez' },
+  { title: 'Título', key: 'title' },
+  { title: 'Tom', key: 'key' },
+  { title: 'Estilo', key: 'style' },
+  { title: 'Última Vez', key: 'lastPlayed' },
   { 
     title: 'Vezes Tocada', 
-    key: 'vezesTocada',
+    key: 'timesPlayed',
     render: (value: number) => (
       <div className="flex items-center">
         <span className="font-medium">{value}</span>
@@ -221,51 +127,74 @@ const songColumns = [
   },
 ];
 
-// Gantt chart data
-const scheduleData = [
-  { 
-    id: 1, 
-    title: 'Ensaio Geral', 
-    start: new Date(2023, 5, 10, 19, 0), 
-    end: new Date(2023, 5, 10, 21, 0),
-    members: ['João', 'Maria', 'Carlos', 'Ana', 'Pedro', 'Luiza'] 
-  },
-  { 
-    id: 2, 
-    title: 'Ensaio Vocal', 
-    start: new Date(2023, 5, 12, 18, 0), 
-    end: new Date(2023, 5, 12, 19, 30),
-    members: ['Maria', 'Fernando'] 
-  },
-  { 
-    id: 3, 
-    title: 'Culto Domingo', 
-    start: new Date(2023, 5, 14, 9, 0), 
-    end: new Date(2023, 5, 14, 12, 0),
-    members: ['João', 'Maria', 'Carlos', 'Ana', 'Fernando'] 
-  },
-  { 
-    id: 4, 
-    title: 'Preparação Louvor', 
-    start: new Date(2023, 5, 16, 19, 0), 
-    end: new Date(2023, 5, 16, 20, 30),
-    members: ['João', 'Pedro', 'Luiza'] 
-  },
-  { 
-    id: 5, 
-    title: 'Culto Quarta', 
-    start: new Date(2023, 5, 17, 19, 0), 
-    end: new Date(2023, 5, 17, 21, 0),
-    members: ['João', 'Maria', 'Pedro', 'Fernando'] 
-  },
-];
-
-// Days of the week
+// Dias da semana
 const weekDays = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 
 const MusicGroupManagement: React.FC = () => {
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [availableDays, setAvailableDays] = useState<string[]>([]);
+  const [musicians, setMusicians] = useState<any[]>([]);
+  const [songs, setSongs] = useState<Song[]>([]);
+  const [schedules, setSchedules] = useState<any[]>([]);
+  const [selectedSongs, setSelectedSongs] = useState<number[]>([]);
+  const { toast } = useToast();
+  
+  // Formulários
+  const addSongForm = useForm<z.infer<typeof addSongSchema>>({
+    resolver: zodResolver(addSongSchema),
+    defaultValues: {
+      title: '',
+      key: '',
+      style: ''
+    }
+  });
+
+  const addScheduleForm = useForm<z.infer<typeof addScheduleSchema>>({
+    resolver: zodResolver(addScheduleSchema),
+    defaultValues: {
+      title: '',
+      time: '',
+      location: '',
+      description: ''
+    }
+  });
+
+  const assignMusicianForm = useForm<z.infer<typeof assignMusicianSchema>>({
+    resolver: zodResolver(assignMusicianSchema),
+    defaultValues: {
+      instrument: ''
+    }
+  });
+
+  const addSongsToScheduleForm = useForm<z.infer<typeof addSongsToScheduleSchema>>({
+    resolver: zodResolver(addSongsToScheduleSchema)
+  });
+  
+  // Carregar dados 
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const [musiciansData, songsData, schedulesData] = await Promise.all([
+          getAllMusicians(),
+          getAllSongs(),
+          getAllSchedules()
+        ]);
+        
+        setMusicians(musiciansData);
+        setSongs(songsData);
+        setSchedules(schedulesData);
+      } catch (error) {
+        console.error('Erro ao carregar dados:', error);
+        toast({
+          title: 'Erro ao carregar dados',
+          description: 'Não foi possível carregar os dados. Tente novamente mais tarde.',
+          variant: 'destructive'
+        });
+      }
+    };
+    
+    loadData();
+  }, [toast]);
   
   // Handle day selection
   const handleDayToggle = (day: string) => {
@@ -273,6 +202,124 @@ const MusicGroupManagement: React.FC = () => {
       setAvailableDays(availableDays.filter(d => d !== day));
     } else {
       setAvailableDays([...availableDays, day]);
+    }
+  };
+
+  // Adicionar música
+  const handleAddSong = async (values: z.infer<typeof addSongSchema>) => {
+    try {
+      const newSong = await addSong({
+        ...values,
+        timesPlayed: 0,
+        lastPlayed: format(new Date(), 'dd/MM/yyyy')
+      });
+      
+      setSongs([...songs, newSong]);
+      addSongForm.reset();
+      
+      toast({
+        title: 'Música adicionada',
+        description: 'A música foi adicionada com sucesso.',
+      });
+    } catch (error) {
+      toast({
+        title: 'Erro ao adicionar música',
+        description: 'Ocorreu um erro ao adicionar a música. Tente novamente.',
+        variant: 'destructive'
+      });
+    }
+  };
+
+  // Adicionar agendamento
+  const handleAddSchedule = async (values: z.infer<typeof addScheduleSchema>) => {
+    try {
+      const newSchedule = await addSchedule({
+        ...values,
+        date: format(values.date, 'yyyy-MM-dd'),
+        musicians: []
+      });
+      
+      setSchedules([...schedules, newSchedule]);
+      addScheduleForm.reset();
+      
+      toast({
+        title: 'Evento agendado',
+        description: 'O evento foi agendado com sucesso.',
+      });
+    } catch (error) {
+      toast({
+        title: 'Erro ao agendar evento',
+        description: 'Ocorreu um erro ao agendar o evento. Tente novamente.',
+        variant: 'destructive'
+      });
+    }
+  };
+
+  // Atribuir músico a um evento
+  const handleAssignMusician = async (values: z.infer<typeof assignMusicianSchema>) => {
+    try {
+      const success = await assignMusicianToSchedule(
+        values.scheduleId,
+        values.musicianId,
+        values.instrument
+      );
+      
+      if (success) {
+        // Atualizar a lista de agendamentos
+        const updatedSchedules = await getAllSchedules();
+        setSchedules(updatedSchedules);
+        
+        assignMusicianForm.reset();
+        
+        toast({
+          title: 'Músico atribuído',
+          description: 'O músico foi atribuído ao evento com sucesso.',
+        });
+      }
+    } catch (error) {
+      toast({
+        title: 'Erro ao atribuir músico',
+        description: 'Ocorreu um erro ao atribuir o músico. Tente novamente.',
+        variant: 'destructive'
+      });
+    }
+  };
+
+  // Adicionar músicas a um evento
+  const handleAddSongsToSchedule = async (values: z.infer<typeof addSongsToScheduleSchema>) => {
+    try {
+      const success = await addSongsToSchedule(
+        values.scheduleId,
+        selectedSongs
+      );
+      
+      if (success) {
+        // Atualizar a lista de agendamentos
+        const updatedSchedules = await getAllSchedules();
+        setSchedules(updatedSchedules);
+        
+        setSelectedSongs([]);
+        addSongsToScheduleForm.reset();
+        
+        toast({
+          title: 'Músicas adicionadas',
+          description: 'As músicas foram adicionadas ao evento com sucesso.',
+        });
+      }
+    } catch (error) {
+      toast({
+        title: 'Erro ao adicionar músicas',
+        description: 'Ocorreu um erro ao adicionar as músicas. Tente novamente.',
+        variant: 'destructive'
+      });
+    }
+  };
+
+  const handleSongSelection = (songId: number) => {
+    if (selectedSongs.includes(songId)) {
+      setSelectedSongs(selectedSongs.filter(id => id !== songId));
+    } else {
+      setSelectedSongs([...selectedSongs, songId]);
     }
   };
 
@@ -309,7 +356,7 @@ const MusicGroupManagement: React.FC = () => {
               <CardContent className="p-0">
                 <DataTable 
                   columns={musicianColumns}
-                  data={musiciansData}
+                  data={musicians}
                   searchable={true}
                   downloadable={true}
                 />
@@ -319,122 +366,436 @@ const MusicGroupManagement: React.FC = () => {
           
           {/* Músicas Tab */}
           <TabsContent value="songs" className="mt-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Músicas Mais Tocadas</CardTitle>
-                <CardDescription>
-                  Gerenciamento do repertório musical e frequência de uso
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="p-0">
-                <DataTable 
-                  columns={songColumns}
-                  data={songsData}
-                  searchable={true}
-                  downloadable={true}
-                />
-              </CardContent>
-            </Card>
-          </TabsContent>
-          
-          {/* Escala Tab */}
-          <TabsContent value="schedule" className="mt-4">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="lg:col-span-2">
                 <Card>
                   <CardHeader>
-                    <CardTitle>Escala de Músicos</CardTitle>
+                    <CardTitle>Músicas Mais Tocadas</CardTitle>
                     <CardDescription>
-                      Escala de músicos para os próximos eventos
+                      Gerenciamento do repertório musical e frequência de uso
                     </CardDescription>
                   </CardHeader>
-                  <CardContent>
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Evento</TableHead>
-                          <TableHead>Data</TableHead>
-                          <TableHead>Horário</TableHead>
-                          <TableHead>Músicos</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {scheduleData.map((event) => (
-                          <TableRow key={event.id}>
-                            <TableCell className="font-medium">{event.title}</TableCell>
-                            <TableCell>{format(event.start, 'dd/MM/yyyy')}</TableCell>
-                            <TableCell>{`${format(event.start, 'HH:mm')} - ${format(event.end, 'HH:mm')}`}</TableCell>
-                            <TableCell>
-                              <div className="flex flex-wrap gap-1">
-                                {event.members.map((member, i) => (
-                                  <Badge key={i} variant="outline">{member}</Badge>
-                                ))}
-                              </div>
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
+                  <CardContent className="p-0">
+                    <DataTable 
+                      columns={songColumns}
+                      data={songs}
+                      searchable={true}
+                      downloadable={true}
+                    />
                   </CardContent>
                 </Card>
               </div>
               
               <Card>
                 <CardHeader>
-                  <CardTitle>Adicionar à Escala</CardTitle>
+                  <CardTitle>Adicionar Nova Música</CardTitle>
                   <CardDescription>
-                    Adicione músicos a um evento
+                    Cadastre uma nova música no repertório
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="eventName">Nome do Evento</Label>
-                    <Input id="eventName" placeholder="Ex: Ensaio Geral" />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label>Data</Label>
-                    <div className="border rounded-md p-2">
-                      <Calendar 
-                        mode="single" 
-                        selected={date} 
-                        onSelect={setDate} 
-                        className="rounded-md border w-full" 
+                <CardContent>
+                  <Form {...addSongForm}>
+                    <form onSubmit={addSongForm.handleSubmit(handleAddSong)} className="space-y-4">
+                      <FormField
+                        control={addSongForm.control}
+                        name="title"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Título da Música</FormLabel>
+                            <FormControl>
+                              <Input placeholder="Ex: Grande é o Senhor" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
                       />
-                    </div>
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="startTime">Horário Início</Label>
-                      <Input id="startTime" type="time" />
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="endTime">Horário Fim</Label>
-                      <Input id="endTime" type="time" />
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label>Músicos</Label>
-                    <Select>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione músicos" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {musiciansData.map((musician) => (
-                          <SelectItem key={musician.id} value={musician.id.toString()}>
-                            {musician.nome} ({musician.instrumento})
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  
-                  <Button className="w-full">Adicionar à Escala</Button>
+                      
+                      <FormField
+                        control={addSongForm.control}
+                        name="key"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Tonalidade</FormLabel>
+                            <Select 
+                              onValueChange={field.onChange} 
+                              defaultValue={field.value}
+                            >
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Selecione a tonalidade" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'].map((key) => (
+                                  <SelectItem key={key} value={key}>{key}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      
+                      <FormField
+                        control={addSongForm.control}
+                        name="style"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Estilo</FormLabel>
+                            <Select 
+                              onValueChange={field.onChange} 
+                              defaultValue={field.value}
+                            >
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Selecione o estilo" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {['Louvor', 'Adoração', 'Congregacional', 'Contemporâneo', 'Tradicional'].map((style) => (
+                                  <SelectItem key={style} value={style}>{style}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      
+                      <Button type="submit" className="w-full">
+                        <PlusCircle className="mr-2 h-4 w-4" />
+                        Adicionar Música
+                      </Button>
+                    </form>
+                  </Form>
                 </CardContent>
               </Card>
+            </div>
+          </TabsContent>
+          
+          {/* Escala Tab */}
+          <TabsContent value="schedule" className="mt-4">
+            <div className="grid grid-cols-1 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Escala de Músicos</CardTitle>
+                  <CardDescription>
+                    Escala de músicos para os próximos eventos
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Evento</TableHead>
+                        <TableHead>Data</TableHead>
+                        <TableHead>Horário</TableHead>
+                        <TableHead>Músicos</TableHead>
+                        <TableHead>Músicas</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {schedules.map((schedule) => (
+                        <TableRow key={schedule.id}>
+                          <TableCell className="font-medium">{schedule.title}</TableCell>
+                          <TableCell>{new Date(schedule.date).toLocaleDateString('pt-BR')}</TableCell>
+                          <TableCell>{schedule.time}</TableCell>
+                          <TableCell>
+                            <div className="flex flex-wrap gap-1">
+                              {schedule.musicians.map((m: any, i: number) => (
+                                <div key={i} className="flex items-center">
+                                  <Badge variant={m.confirmed ? "default" : "outline"} className="mr-1">
+                                    {musicians.find(mus => mus.id === m.musicianId)?.name} ({m.instrument})
+                                    {m.confirmed ? <Check className="ml-1 h-3 w-3" /> : <X className="ml-1 h-3 w-3" />}
+                                  </Badge>
+                                </div>
+                              ))}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex flex-wrap gap-1">
+                              {schedule.songs?.map((song: Song, i: number) => (
+                                <Badge key={i} variant="secondary">{song.title} ({song.key})</Badge>
+                              ))}
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Criar Novo Evento</CardTitle>
+                    <CardDescription>
+                      Agende um novo evento musical
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Form {...addScheduleForm}>
+                      <form onSubmit={addScheduleForm.handleSubmit(handleAddSchedule)} className="space-y-4">
+                        <FormField
+                          control={addScheduleForm.control}
+                          name="title"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Nome do Evento</FormLabel>
+                              <FormControl>
+                                <Input placeholder="Ex: Culto de Domingo" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <FormField
+                          control={addScheduleForm.control}
+                          name="date"
+                          render={({ field }) => (
+                            <FormItem className="flex flex-col">
+                              <FormLabel>Data</FormLabel>
+                              <Calendar
+                                mode="single"
+                                selected={field.value}
+                                onSelect={field.onChange}
+                                className="rounded-md border"
+                                disabled={(date) => date < new Date()}
+                              />
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <FormField
+                          control={addScheduleForm.control}
+                          name="time"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Horário</FormLabel>
+                              <FormControl>
+                                <Input type="time" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <FormField
+                          control={addScheduleForm.control}
+                          name="location"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Local</FormLabel>
+                              <FormControl>
+                                <Input placeholder="Ex: Templo Principal" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <FormField
+                          control={addScheduleForm.control}
+                          name="description"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Descrição</FormLabel>
+                              <FormControl>
+                                <Textarea placeholder="Descrição do evento..." {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <Button type="submit" className="w-full">
+                          <PlusCircle className="mr-2 h-4 w-4" />
+                          Criar Evento
+                        </Button>
+                      </form>
+                    </Form>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Atribuir Músico</CardTitle>
+                    <CardDescription>
+                      Atribua músicos a um evento
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Form {...assignMusicianForm}>
+                      <form onSubmit={assignMusicianForm.handleSubmit(handleAssignMusician)} className="space-y-4">
+                        <FormField
+                          control={assignMusicianForm.control}
+                          name="scheduleId"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Evento</FormLabel>
+                              <Select 
+                                onValueChange={(value) => field.onChange(parseInt(value))} 
+                                defaultValue={field.value?.toString()}
+                              >
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Selecione o evento" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  {schedules.map((schedule) => (
+                                    <SelectItem key={schedule.id} value={schedule.id.toString()}>
+                                      {schedule.title} - {new Date(schedule.date).toLocaleDateString('pt-BR')}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <FormField
+                          control={assignMusicianForm.control}
+                          name="musicianId"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Músico</FormLabel>
+                              <Select 
+                                onValueChange={(value) => field.onChange(parseInt(value))} 
+                                defaultValue={field.value?.toString()}
+                              >
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Selecione o músico" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  {musicians.map((musician) => (
+                                    <SelectItem key={musician.id} value={musician.id.toString()}>
+                                      {musician.name}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <FormField
+                          control={assignMusicianForm.control}
+                          name="instrument"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Instrumento</FormLabel>
+                              <Select 
+                                onValueChange={field.onChange} 
+                                defaultValue={field.value}
+                              >
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Selecione o instrumento" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  {['violão', 'guitarra', 'baixo', 'bateria', 'teclado', 'piano', 'vocal', 'violino', 'flauta', 'saxofone', 'trompete'].map((instrument) => (
+                                    <SelectItem key={instrument} value={instrument}>{instrument}</SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <Button type="submit" className="w-full">
+                          <UserCheck className="mr-2 h-4 w-4" />
+                          Atribuir Músico
+                        </Button>
+                      </form>
+                    </Form>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Adicionar Músicas ao Evento</CardTitle>
+                    <CardDescription>
+                      Selecione as músicas para um evento
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Form {...addSongsToScheduleForm}>
+                      <form onSubmit={addSongsToScheduleForm.handleSubmit(() => handleAddSongsToSchedule({ scheduleId: addSongsToScheduleForm.getValues().scheduleId, songIds: selectedSongs }))} className="space-y-4">
+                        <FormField
+                          control={addSongsToScheduleForm.control}
+                          name="scheduleId"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Evento</FormLabel>
+                              <Select 
+                                onValueChange={(value) => field.onChange(parseInt(value))} 
+                                defaultValue={field.value?.toString()}
+                              >
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Selecione o evento" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  {schedules.map((schedule) => (
+                                    <SelectItem key={schedule.id} value={schedule.id.toString()}>
+                                      {schedule.title} - {new Date(schedule.date).toLocaleDateString('pt-BR')}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <div>
+                          <Label>Selecione as músicas</Label>
+                          <div className="border rounded-md p-3 mt-2 space-y-2 max-h-[200px] overflow-y-auto">
+                            {songs.map((song) => (
+                              <div key={song.id} className="flex items-center space-x-2">
+                                <Checkbox
+                                  id={`song-${song.id}`}
+                                  checked={selectedSongs.includes(song.id)}
+                                  onCheckedChange={() => handleSongSelection(song.id)}
+                                />
+                                <label
+                                  htmlFor={`song-${song.id}`}
+                                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                >
+                                  {song.title} ({song.key})
+                                </label>
+                              </div>
+                            ))}
+                          </div>
+                          {selectedSongs.length === 0 && (
+                            <p className="text-sm text-destructive mt-1">Selecione pelo menos uma música</p>
+                          )}
+                        </div>
+                        
+                        <Button 
+                          type="submit" 
+                          className="w-full"
+                          disabled={selectedSongs.length === 0}
+                        >
+                          <Music className="mr-2 h-4 w-4" />
+                          Adicionar Músicas
+                        </Button>
+                      </form>
+                    </Form>
+                  </CardContent>
+                </Card>
+              </div>
             </div>
           </TabsContent>
           
@@ -463,20 +824,21 @@ const MusicGroupManagement: React.FC = () => {
                     </div>
                     
                     {/* Gantt Chart Body */}
-                    {scheduleData.map((event) => {
+                    {schedules.map((schedule) => {
                       // Calculate which day of week the event is on (0-6)
-                      const dayOfWeek = event.start.getDay();
-                      // Calculate duration in hours
-                      const durationHours = (event.end.getTime() - event.start.getTime()) / (1000 * 60 * 60);
-                      // Calculate width percentage based on duration (assuming max 3 hours per event)
-                      const widthPercentage = Math.min(100, (durationHours / 3) * 100);
+                      const eventDate = new Date(schedule.date);
+                      const dayOfWeek = eventDate.getDay();
+                      
+                      // Calculate time slot position - simplistic calculation for visualization
+                      const hour = parseInt(schedule.time.split(':')[0]);
+                      const widthPercentage = 80; // Fixed width for now
                       
                       return (
-                        <div key={event.id} className="flex border-b">
+                        <div key={schedule.id} className="flex border-b">
                           <div className="w-1/4 p-3">
-                            <div className="font-medium">{event.title}</div>
+                            <div className="font-medium">{schedule.title}</div>
                             <div className="text-sm text-muted-foreground">
-                              {format(event.start, 'dd/MM HH:mm')} - {format(event.end, 'HH:mm')}
+                              {new Date(schedule.date).toLocaleDateString('pt-BR')} - {schedule.time}
                             </div>
                           </div>
                           <div className="w-3/4 flex relative">
@@ -491,7 +853,7 @@ const MusicGroupManagement: React.FC = () => {
                                       maxWidth: `calc(100% / 7 - 24px)`
                                     }}
                                   >
-                                    {format(event.start, 'HH:mm')}
+                                    {schedule.time}
                                   </div>
                                 )}
                               </div>
@@ -514,9 +876,10 @@ const MusicGroupManagement: React.FC = () => {
               <UserCheck className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{musiciansData.length}</div>
+              <div className="text-2xl font-bold">{musicians.length}</div>
               <p className="text-xs text-muted-foreground mt-1">
-                {musiciansData.filter(m => m.instrumento === 'Vocal').length} vocais, {musiciansData.length - musiciansData.filter(m => m.instrumento === 'Vocal').length} instrumentistas
+                {musicians.filter(m => m.instruments.includes('vocal')).length} vocais, 
+                {musicians.length - musicians.filter(m => m.instruments.includes('vocal')).length} instrumentistas
               </p>
             </CardContent>
           </Card>
@@ -527,9 +890,13 @@ const MusicGroupManagement: React.FC = () => {
               <CalendarIcon className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{scheduleData.length}</div>
+              <div className="text-2xl font-bold">{schedules.length}</div>
               <p className="text-xs text-muted-foreground mt-1">
-                Próximo: {format(scheduleData[0].start, 'dd/MM')} - {scheduleData[0].title}
+                {schedules.length > 0 ? (
+                  <>Próximo: {new Date(schedules[0].date).toLocaleDateString('pt-BR')} - {schedules[0].title}</>
+                ) : (
+                  'Nenhum evento previsto'
+                )}
               </p>
             </CardContent>
           </Card>
@@ -542,15 +909,21 @@ const MusicGroupManagement: React.FC = () => {
             <CardContent>
               <div className="flex justify-between">
                 <div className="text-center">
-                  <div className="text-xl font-bold">{musiciansData.filter(m => m.disponibilidade.includes('Manhã')).length}</div>
+                  <div className="text-xl font-bold">
+                    {musicians.filter(m => m.availability.some(a => a.period === 'manhã')).length}
+                  </div>
                   <p className="text-xs text-muted-foreground">Manhã</p>
                 </div>
                 <div className="text-center">
-                  <div className="text-xl font-bold">{musiciansData.filter(m => m.disponibilidade.includes('Tarde')).length}</div>
+                  <div className="text-xl font-bold">
+                    {musicians.filter(m => m.availability.some(a => a.period === 'tarde')).length}
+                  </div>
                   <p className="text-xs text-muted-foreground">Tarde</p>
                 </div>
                 <div className="text-center">
-                  <div className="text-xl font-bold">{musiciansData.filter(m => m.disponibilidade.includes('Noite')).length}</div>
+                  <div className="text-xl font-bold">
+                    {musicians.filter(m => m.availability.some(a => a.period === 'noite')).length}
+                  </div>
                   <p className="text-xs text-muted-foreground">Noite</p>
                 </div>
               </div>
@@ -567,8 +940,8 @@ const MusicGroupManagement: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {['Vocal', 'Violão', 'Bateria', 'Baixo', 'Teclado', 'Violino', 'Guitarra', 'Percussão'].map((instrument) => {
-                const count = musiciansData.filter(m => m.instrumento === instrument).length;
+              {['vocal', 'violão', 'bateria', 'baixo', 'teclado', 'violino', 'guitarra', 'piano'].map((instrument) => {
+                const count = musicians.filter(m => m.instruments.includes(instrument as Instrument)).length;
                 return (
                   <Card key={instrument} className={count > 0 ? '' : 'opacity-50'}>
                     <CardContent className="flex items-center justify-between p-4">
