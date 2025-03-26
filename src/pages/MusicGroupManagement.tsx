@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { format, parseISO } from 'date-fns';
@@ -45,13 +46,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { addSong } from '@/services/songService';
+import { addSong, getAllSongs } from '@/services/songService';
 import { createSchedule } from '@/services/scheduleService';
-import { getSongs } from '@/services/songService';
-import { getMusicians } from '@/services/musicianService';
-import { Song } from '@/types/song';
+import { getAllMusicians } from '@/services/musicianService';
+import { Musician, Song } from '@/types/musician';
 import { Schedule } from '@/types/schedule';
-import { Musician } from '@/types/musician';
 
 const songFormSchema = z.object({
   title: z.string().min(2, {
@@ -115,12 +114,12 @@ const MusicGroupManagement = () => {
 
   const { data: songs, isLoading: isSongsLoading } = useQuery({
     queryKey: ['songs'],
-    queryFn: getSongs,
+    queryFn: getAllSongs,
   });
 
   const { data: musicians, isLoading: isMusiciansLoading } = useQuery({
     queryKey: ['musicians'],
-    queryFn: getMusicians,
+    queryFn: getAllMusicians,
   });
 
   const addSongMutation = useMutation({
@@ -130,7 +129,7 @@ const MusicGroupManagement = () => {
         key: formData.key || "",
         style: formData.style || "",
         timesPlayed: formData.timesPlayed || 0,
-        lastPlayed: formData.lastPlayed ? formData.lastPlayed.toISOString() : null
+        lastPlayed: formData.lastPlayed ? formData.lastPlayed.toISOString() : undefined
       };
       return addSong(newSong);
     },
@@ -156,7 +155,7 @@ const MusicGroupManagement = () => {
     mutationFn: (formData: Partial<Schedule>) => {
       const newSchedule: Omit<Schedule, 'id'> = {
         title: formData.title || "",
-        date: formData.date ? formData.date.toISOString() : "",
+        date: formData.date ? formData.date.toISOString() : new Date().toISOString(),
         time: formData.time || "00:00",
         description: formData.description || "",
         location: formData.location || "",
