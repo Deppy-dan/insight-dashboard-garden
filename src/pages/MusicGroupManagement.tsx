@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { format, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -36,7 +36,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { addDays, isBefore, isAfter } from 'date-fns';
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Table,
@@ -91,6 +91,7 @@ const MusicGroupManagement = () => {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
+  // Formulario de música
   const songForm = useForm<z.infer<typeof songFormSchema>>({
     resolver: zodResolver(songFormSchema),
     defaultValues: {
@@ -100,6 +101,7 @@ const MusicGroupManagement = () => {
     },
   });
 
+  // Formulario de evento
   const scheduleForm = useForm<z.infer<typeof scheduleFormSchema>>({
     resolver: zodResolver(scheduleFormSchema),
     defaultValues: {
@@ -112,24 +114,27 @@ const MusicGroupManagement = () => {
     },
   });
 
+  // Buscar músicas
   const { data: songs, isLoading: isSongsLoading } = useQuery({
     queryKey: ['songs'],
     queryFn: getAllSongs,
   });
 
+  // Buscar músicos
   const { data: musicians, isLoading: isMusiciansLoading } = useQuery({
     queryKey: ['musicians'],
     queryFn: getAllMusicians,
   });
 
+  // Mutações para adicionar música
   const addSongMutation = useMutation({
-    mutationFn: (formData: Partial<Song>) => {
+    mutationFn: (formData: z.infer<typeof songFormSchema>) => {
       const newSong: Omit<Song, 'id'> = {
         title: formData.title || "",
         key: formData.key || "",
         style: formData.style || "",
         timesPlayed: formData.timesPlayed || 0,
-        lastPlayed: formData.lastPlayed ? formData.lastPlayed.toISOString() : undefined
+        lastPlayed: formData.lastPlayed ? format(formData.lastPlayed, 'yyyy-MM-dd') : null
       };
       return addSong(newSong);
     },
@@ -151,11 +156,12 @@ const MusicGroupManagement = () => {
     }
   });
 
+  // Mutações para criar evento
   const createScheduleMutation = useMutation({
-    mutationFn: (formData: Partial<Schedule>) => {
+    mutationFn: (formData: z.infer<typeof scheduleFormSchema>) => {
       const newSchedule: Omit<Schedule, 'id'> = {
         title: formData.title || "",
-        date: formData.date ? formData.date.toISOString() : new Date().toISOString(),
+        date: formData.date ? format(formData.date, 'yyyy-MM-dd') : format(new Date(), 'yyyy-MM-dd'),
         time: formData.time || "00:00",
         description: formData.description || "",
         location: formData.location || "",
@@ -182,14 +188,17 @@ const MusicGroupManagement = () => {
     }
   });
 
+  // Lógica para adicionar música
   const handleAddSong = async (values: z.infer<typeof songFormSchema>) => {
     addSongMutation.mutate(values);
   };
 
+  // Lógica para criar evento
   const handleCreateSchedule = async (values: z.infer<typeof scheduleFormSchema>) => {
     createScheduleMutation.mutate(values);
   };
 
+  // Formatador de data
   const formatDate = (dateString: string) => {
     try {
       return format(parseISO(dateString), "dd 'de' MMMM 'de' yyyy", { locale: ptBR });
@@ -339,13 +348,13 @@ const MusicGroupManagement = () => {
                               <PopoverContent className="w-auto p-0" align="start">
                                 <Calendar
                                   mode="single"
+                                  captionLayout="dropdown"
                                   selected={field.value}
                                   onSelect={field.onChange}
                                   disabled={(date) =>
                                     date > addDays(new Date(), 365) || isBefore(date, new Date())
                                   }
                                   initialFocus
-                                  className="pointer-events-auto"
                                 />
                               </PopoverContent>
                             </Popover>
@@ -413,7 +422,7 @@ const MusicGroupManagement = () => {
                           </TableRow>
                         </TableHeader>
                         <TableBody>
-                          {musicians && musicians.map((musician: Musician) => (
+                          {musicians?.map((musician) => (
                             <TableRow key={musician.id}>
                               <TableCell className="font-medium">{musician.name}</TableCell>
                               <TableCell>
@@ -472,7 +481,7 @@ const MusicGroupManagement = () => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {songs && songs.length === 0 ? (
+              {!songs || songs.length === 0 ? (
                 <div className="text-center py-8">
                   Nenhuma música adicionada ainda.
                 </div>
@@ -486,7 +495,7 @@ const MusicGroupManagement = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {songs && songs.map((song: Song) => (
+                    {songs.map((song) => (
                       <TableRow key={song.id}>
                         <TableCell>{song.title}</TableCell>
                         <TableCell>{song.key}</TableCell>
