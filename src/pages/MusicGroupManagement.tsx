@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { format, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -6,7 +7,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { Plus, Calendar, Music2, MapPin } from 'lucide-react';
+import { Plus, Music2, MapPin } from 'lucide-react';
+import { CalendarIcon } from "lucide-react";
 import Layout from '@/components/layout/Layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from "@/components/ui/button";
@@ -30,12 +32,11 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Calendar as CalendarIcon } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
-import { addDays, isBefore, isAfter } from 'date-fns';
-import { useToast } from "@/components/ui/use-toast";
+import { addDays, isBefore } from 'date-fns';
+import { useToast } from "@/hooks/use-toast";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Table,
@@ -47,11 +48,10 @@ import {
 } from "@/components/ui/table"
 import { addSong } from '@/services/songService';
 import { createSchedule } from '@/services/scheduleService';
-import { getSongs } from '@/services/songService';
-import { getMusicians } from '@/services/musicianService';
-import { Song } from '@/types/song';
+import { getAllSongs } from '@/services/songService';
+import { getAllMusicians } from '@/services/musicianService';
 import { Schedule } from '@/types/schedule';
-import { Musician } from '@/types/musician';
+import { Musician, Song } from '@/types/musician';
 
 const songFormSchema = z.object({
   title: z.string().min(2, {
@@ -118,13 +118,13 @@ const MusicGroupManagement = () => {
   // Buscar músicas
   const { data: songs, isLoading: isSongsLoading } = useQuery({
     queryKey: ['songs'],
-    queryFn: getSongs,
+    queryFn: getAllSongs,
   });
 
   // Buscar músicos
   const { data: musicians, isLoading: isMusiciansLoading } = useQuery({
     queryKey: ['musicians'],
-    queryFn: getMusicians,
+    queryFn: getAllMusicians,
   });
 
   // Mutações para adicionar música
@@ -135,7 +135,7 @@ const MusicGroupManagement = () => {
         key: formData.key || "",
         style: formData.style || "",
         timesPlayed: formData.timesPlayed || 0,
-        lastPlayed: formData.lastPlayed || null
+        lastPlayed: formData.lastPlayed ? formData.lastPlayed.toString() : undefined
       };
       return addSong(newSong);
     },
@@ -162,7 +162,7 @@ const MusicGroupManagement = () => {
     mutationFn: (formData: Partial<Schedule>) => {
       const newSchedule: Omit<Schedule, 'id'> = {
         title: formData.title || "",
-        date: formData.date || "",
+        date: formData.date ? format(formData.date, 'yyyy-MM-dd') : "",
         time: formData.time || "00:00",
         description: formData.description || "",
         location: formData.location || "",
@@ -293,7 +293,7 @@ const MusicGroupManagement = () => {
             <Dialog open={scheduleDialogOpen} onOpenChange={setScheduleDialogOpen}>
               <DialogTrigger asChild>
                 <Button>
-                  <Calendar className="mr-2 h-4 w-4" />
+                  <CalendarIcon className="mr-2 h-4 w-4" />
                   Criar Evento
                 </Button>
               </DialogTrigger>
@@ -349,13 +349,13 @@ const MusicGroupManagement = () => {
                               <PopoverContent className="w-auto p-0" align="start">
                                 <Calendar
                                   mode="single"
-                                  captionLayout="dropdown"
                                   selected={field.value}
                                   onSelect={field.onChange}
                                   disabled={(date) =>
                                     date > addDays(new Date(), 365) || isBefore(date, new Date())
                                   }
                                   initialFocus
+                                  className="pointer-events-auto"
                                 />
                               </PopoverContent>
                             </Popover>
@@ -423,7 +423,7 @@ const MusicGroupManagement = () => {
                           </TableRow>
                         </TableHeader>
                         <TableBody>
-                          {musicians?.map((musician) => (
+                          {musicians && musicians.map((musician: Musician) => (
                             <TableRow key={musician.id}>
                               <TableCell className="font-medium">{musician.name}</TableCell>
                               <TableCell>
@@ -482,7 +482,7 @@ const MusicGroupManagement = () => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {songs?.length === 0 ? (
+              {songs && songs.length === 0 ? (
                 <div className="text-center py-8">
                   Nenhuma música adicionada ainda.
                 </div>
@@ -496,7 +496,7 @@ const MusicGroupManagement = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {songs?.map((song) => (
+                    {songs && songs.map((song: Song) => (
                       <TableRow key={song.id}>
                         <TableCell>{song.title}</TableCell>
                         <TableCell>{song.key}</TableCell>
