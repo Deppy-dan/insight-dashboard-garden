@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { format, parseISO } from 'date-fns';
@@ -29,7 +28,6 @@ import { getAllSchedules, createSchedule, updateSchedule } from '@/services/sche
 import { Instrument, Song } from '@/types/musician';
 import { Schedule } from '@/types/schedule';
 
-// Schemas de validação
 const songFormSchema = z.object({
   title: z.string().min(2, { message: 'Título é obrigatório' }),
   key: z.string().min(1, { message: 'Tonalidade é obrigatória' }),
@@ -60,36 +58,32 @@ const MusicManagement = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTab, setSelectedTab] = useState('songs');
   
-  // Diálogos
   const [addSongDialogOpen, setAddSongDialogOpen] = useState(false);
   const [addScheduleDialogOpen, setAddScheduleDialogOpen] = useState(false);
   const [addSongsToScheduleDialogOpen, setAddSongsToScheduleDialogOpen] = useState(false);
   const [selectedSchedule, setSelectedSchedule] = useState<Schedule | null>(null);
   const [selectedSongs, setSelectedSongs] = useState<number[]>([]);
 
-  // Consultas
-  const { data: songs = [], isLoading: isLoadingSongs } = useQuery({
+  const songs = useQuery({
     queryKey: ['songs'],
     queryFn: getAllSongs,
   });
 
-  const { data: musicians = [], isLoading: isLoadingMusicians } = useQuery({
+  const musicians = useQuery({
     queryKey: ['musicians'],
     queryFn: getAllMusicians,
   });
 
-  const { data: schedules = [], isLoading: isLoadingSchedules } = useQuery({
+  const schedules = useQuery({
     queryKey: ['schedules'],
     queryFn: getAllSchedules,
   });
 
-  // Filtragem
-  const filteredSongs = songs.filter(song => 
+  const filteredSongs = songs.data?.filter(song => 
     song.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     song.style.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Formulários
   const songForm = useForm<z.infer<typeof songFormSchema>>({
     resolver: zodResolver(songFormSchema),
     defaultValues: {
@@ -112,15 +106,13 @@ const MusicManagement = () => {
     },
   });
 
-  // Mutações
   const addSongMutation = useMutation({
     mutationFn: (data: z.infer<typeof songFormSchema>) => {
-      // Garantir que todos os campos obrigatórios estão presentes
       const newSong: Omit<Song, 'id'> = {
         title: data.title,
         key: data.key,
         style: data.style,
-        lastPlayed: data.lastPlayed || undefined,
+        lastPlayed: data.lastPlayed || null,
         timesPlayed: data.timesPlayed || 0
       };
       return addSong(newSong);
@@ -140,19 +132,22 @@ const MusicManagement = () => {
         description: error.message,
         variant: "destructive",
       });
-    },
+    }
   });
 
   const createScheduleMutation = useMutation({
     mutationFn: (data: z.infer<typeof scheduleFormSchema>) => {
-      // Garantir que todos os campos obrigatórios estão presentes
       const newSchedule: Omit<Schedule, 'id'> = {
         title: data.title,
         date: data.date,
-        time: data.time,
-        description: data.description,
-        location: data.location,
-        musicians: data.musicians || [],
+        time: data.time || "00:00",
+        description: data.description || "",
+        location: data.location || "",
+        musicians: data.musicians ? data.musicians.map(m => ({
+          musicianId: m.musicianId || 0,
+          instrument: m.instrument || "",
+          confirmed: m.confirmed || false
+        })) : [],
         songs: []
       };
       return createSchedule(newSchedule);
@@ -172,7 +167,7 @@ const MusicManagement = () => {
         description: error.message,
         variant: "destructive",
       });
-    },
+    }
   });
 
   const updateScheduleWithSongsMutation = useMutation({
@@ -193,10 +188,9 @@ const MusicManagement = () => {
         description: error.message,
         variant: "destructive",
       });
-    },
+    }
   });
 
-  // Handlers
   const onSubmitSong = (data: z.infer<typeof songFormSchema>) => {
     addSongMutation.mutate(data);
   };
@@ -230,7 +224,6 @@ const MusicManagement = () => {
     setAddSongsToScheduleDialogOpen(true);
   };
 
-  // Formatador de data
   const formatDate = (dateString: string) => {
     try {
       return format(parseISO(dateString), "dd 'de' MMMM 'de' yyyy", { locale: ptBR });
@@ -239,7 +232,7 @@ const MusicManagement = () => {
     }
   };
 
-  if (isLoadingSongs || isLoadingMusicians || isLoadingSchedules) {
+  if (songs.isLoading || musicians.isLoading || schedules.isLoading) {
     return (
       <Layout>
         <div className="flex items-center justify-center h-64">
@@ -267,7 +260,6 @@ const MusicManagement = () => {
             <TabsTrigger value="schedules">Eventos</TabsTrigger>
           </TabsList>
 
-          {/* Aba de Músicas */}
           <TabsContent value="songs" className="space-y-4">
             <div className="flex flex-col md:flex-row justify-between gap-2">
               <div className="relative">
@@ -404,7 +396,6 @@ const MusicManagement = () => {
             </Card>
           </TabsContent>
 
-          {/* Aba de Eventos */}
           <TabsContent value="schedules" className="space-y-4">
             <div className="flex justify-end">
               <Dialog open={addScheduleDialogOpen} onOpenChange={setAddScheduleDialogOpen}>
@@ -514,7 +505,7 @@ const MusicManagement = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                {schedules.length === 0 ? (
+                {schedules.data?.length === 0 ? (
                   <div className="text-center py-8 text-muted-foreground">
                     Nenhum evento agendado.
                   </div>
@@ -530,7 +521,7 @@ const MusicManagement = () => {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {schedules.map((schedule) => (
+                      {schedules.data?.map((schedule) => (
                         <TableRow key={schedule.id}>
                           <TableCell>
                             <div className="font-medium">{formatDate(schedule.date)}</div>
@@ -557,7 +548,7 @@ const MusicManagement = () => {
                                 </span>
                               ) : (
                                 schedule.musicians.map((musician) => {
-                                  const musicianData = musicians.find(
+                                  const musicianData = musicians.data?.find(
                                     (m) => m.id === musician.musicianId
                                   );
                                   return (
@@ -617,7 +608,6 @@ const MusicManagement = () => {
         </Tabs>
       </div>
 
-      {/* Diálogo para adicionar músicas ao evento */}
       <Dialog open={addSongsToScheduleDialogOpen} onOpenChange={setAddSongsToScheduleDialogOpen}>
         <DialogContent className="sm:max-w-[525px]">
           <DialogHeader>
@@ -638,7 +628,7 @@ const MusicManagement = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {songs.map((song) => (
+                {songs.data?.map((song) => (
                   <TableRow key={song.id}>
                     <TableCell>
                       <Checkbox 
