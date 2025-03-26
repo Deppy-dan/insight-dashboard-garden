@@ -165,7 +165,11 @@ const MusicGroupManagement = () => {
         time: formData.time || "00:00",
         description: formData.description || "",
         location: formData.location || "",
-        musicians: formData.musicians || [],
+        musicians: formData.musicians ? formData.musicians.map(m => ({
+          musicianId: m.musicianId,
+          instrument: m.instrument,
+          confirmed: m.confirmed || false
+        })) : [],
         songs: []
       };
       return createSchedule(newSchedule);
