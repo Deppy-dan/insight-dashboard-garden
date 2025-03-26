@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { format, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -8,7 +7,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { Plus, Music2, MapPin } from 'lucide-react';
-import { CalendarIcon } from "lucide-react";
 import Layout from '@/components/layout/Layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from "@/components/ui/button";
@@ -32,11 +30,12 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Calendar as CalendarIcon } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
-import { addDays, isBefore } from 'date-fns';
-import { useToast } from "@/hooks/use-toast";
+import { addDays, isBefore, isAfter } from 'date-fns';
+import { useToast } from "@/components/ui/use-toast";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Table,
@@ -48,10 +47,11 @@ import {
 } from "@/components/ui/table"
 import { addSong } from '@/services/songService';
 import { createSchedule } from '@/services/scheduleService';
-import { getAllSongs } from '@/services/songService';
-import { getAllMusicians } from '@/services/musicianService';
+import { getSongs } from '@/services/songService';
+import { getMusicians } from '@/services/musicianService';
+import { Song } from '@/types/song';
 import { Schedule } from '@/types/schedule';
-import { Musician, Song } from '@/types/musician';
+import { Musician } from '@/types/musician';
 
 const songFormSchema = z.object({
   title: z.string().min(2, {
@@ -92,7 +92,6 @@ const MusicGroupManagement = () => {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
-  // Formulario de música
   const songForm = useForm<z.infer<typeof songFormSchema>>({
     resolver: zodResolver(songFormSchema),
     defaultValues: {
@@ -102,7 +101,6 @@ const MusicGroupManagement = () => {
     },
   });
 
-  // Formulario de evento
   const scheduleForm = useForm<z.infer<typeof scheduleFormSchema>>({
     resolver: zodResolver(scheduleFormSchema),
     defaultValues: {
@@ -115,19 +113,16 @@ const MusicGroupManagement = () => {
     },
   });
 
-  // Buscar músicas
   const { data: songs, isLoading: isSongsLoading } = useQuery({
     queryKey: ['songs'],
-    queryFn: getAllSongs,
+    queryFn: getSongs,
   });
 
-  // Buscar músicos
   const { data: musicians, isLoading: isMusiciansLoading } = useQuery({
     queryKey: ['musicians'],
-    queryFn: getAllMusicians,
+    queryFn: getMusicians,
   });
 
-  // Mutações para adicionar música
   const addSongMutation = useMutation({
     mutationFn: (formData: Partial<Song>) => {
       const newSong: Omit<Song, 'id'> = {
@@ -135,7 +130,7 @@ const MusicGroupManagement = () => {
         key: formData.key || "",
         style: formData.style || "",
         timesPlayed: formData.timesPlayed || 0,
-        lastPlayed: formData.lastPlayed ? formData.lastPlayed.toString() : undefined
+        lastPlayed: formData.lastPlayed ? formData.lastPlayed.toISOString() : null
       };
       return addSong(newSong);
     },
@@ -157,12 +152,11 @@ const MusicGroupManagement = () => {
     }
   });
 
-  // Mutações para criar evento
   const createScheduleMutation = useMutation({
     mutationFn: (formData: Partial<Schedule>) => {
       const newSchedule: Omit<Schedule, 'id'> = {
         title: formData.title || "",
-        date: formData.date ? format(formData.date, 'yyyy-MM-dd') : "",
+        date: formData.date ? formData.date.toISOString() : "",
         time: formData.time || "00:00",
         description: formData.description || "",
         location: formData.location || "",
@@ -189,17 +183,14 @@ const MusicGroupManagement = () => {
     }
   });
 
-  // Lógica para adicionar música
   const handleAddSong = async (values: z.infer<typeof songFormSchema>) => {
     addSongMutation.mutate(values);
   };
 
-  // Lógica para criar evento
   const handleCreateSchedule = async (values: z.infer<typeof scheduleFormSchema>) => {
     createScheduleMutation.mutate(values);
   };
 
-  // Formatador de data
   const formatDate = (dateString: string) => {
     try {
       return format(parseISO(dateString), "dd 'de' MMMM 'de' yyyy", { locale: ptBR });

@@ -27,7 +27,7 @@ const AppRoutes = () => {
         <Route path="/music-management" element={user ? <MusicGroupManagement /> : <Navigate to="/login" />} />
         <Route path="/musicians" element={user && isAdmin ? <MusicManagement /> : <Navigate to={user ? "/music-management" : "/login"} />} />
         <Route path="/admin" element={user && isAdmin ? <AdminDashboard /> : <Navigate to={user ? "/music-management" : "/login"} />} />
-        <Route path="/" element={<Navigate to={user ? "/profile" : "/login"} />} />
+        <Route path="/" element={<Navigate to="/login" />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </AnimatePresence>
