@@ -57,6 +57,16 @@ export const getMusicianById = async (id: number): Promise<Musician | undefined>
   return musicians.find(musician => musician.id === id);
 };
 
+// Add function to get musician by user ID (for profile page)
+export const getMusicianByUserId = async (userId: number): Promise<Musician | undefined> => {
+  // In a real implementation, we would find a musician by their user ID
+  // For mock purposes, we'll just return the first musician if userId is 1, second if 2, etc.
+  if (userId > 0 && userId <= musicians.length) {
+    return musicians[userId - 1];
+  }
+  return undefined;
+};
+
 export const createMusician = async (musician: Omit<Musician, 'id'>): Promise<Musician> => {
   await new Promise(resolve => setTimeout(resolve, 500));
   const newMusician = {

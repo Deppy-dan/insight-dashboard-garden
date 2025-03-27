@@ -54,6 +54,14 @@ export const getScheduleById = async (id: number): Promise<Schedule | undefined>
   return schedules.find(schedule => schedule.id === id);
 };
 
+// Add the missing function to get schedules by musician ID
+export const getSchedulesByMusicianId = async (musicianId: number): Promise<Schedule[]> => {
+  await new Promise(resolve => setTimeout(resolve, 500));
+  return schedules.filter(schedule => 
+    schedule.musicians.some(musician => musician.musicianId === musicianId)
+  );
+};
+
 export const createSchedule = async (schedule: Omit<Schedule, 'id'>): Promise<Schedule> => {
   await new Promise(resolve => setTimeout(resolve, 500));
   const newSchedule = {

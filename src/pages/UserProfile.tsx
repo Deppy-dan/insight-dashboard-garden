@@ -1,6 +1,4 @@
-
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React from 'react';
 import { format, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useQuery } from '@tanstack/react-query';
@@ -12,12 +10,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { useAuth } from '@/contexts/AuthContext';
 import { getMusicianByUserId } from '@/services/musicianService';
 import { getSchedulesByMusicianId } from '@/services/scheduleService';
-import { Musician } from '@/types/musician';
-import { Schedule } from '@/types/schedule';
 
 const UserProfile = () => {
   const { user } = useAuth();
-  const navigate = useNavigate();
 
   // Buscar dados do músico
   const { data: musician, isLoading: isMusicianLoading } = useQuery({
@@ -122,18 +117,14 @@ const UserProfile = () => {
                   ))}
                 </div>
               </div>
-              {musician.phoneNumber && (
-                <div>
-                  <h3 className="font-medium text-sm text-muted-foreground">Telefone</h3>
-                  <p>{musician.phoneNumber}</p>
-                </div>
-              )}
-              {musician.experience && (
-                <div>
-                  <h3 className="font-medium text-sm text-muted-foreground">Experiência</h3>
-                  <p>{musician.experience}</p>
-                </div>
-              )}
+              <div>
+                <h3 className="font-medium text-sm text-muted-foreground">Telefone</h3>
+                <p>{musician.phone}</p>
+              </div>
+              <div>
+                <h3 className="font-medium text-sm text-muted-foreground">Nível</h3>
+                <p>{musician.skillLevel}</p>
+              </div>
             </CardContent>
           </Card>
 

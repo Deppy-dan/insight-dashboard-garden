@@ -5,7 +5,7 @@ export interface Musician {
   email: string;
   phone: string;
   instruments: string[];
-  availability: string[];
+  availability: { day: string; period: string }[];
   skillLevel: string;
   joined: string;
 }
