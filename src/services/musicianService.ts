@@ -9,7 +9,11 @@ const musicians: Musician[] = [
     email: 'joao.silva@example.com',
     phone: '(11) 98765-4321',
     instruments: ['Guitarra', 'Violão'],
-    availability: ['Segunda', 'Quarta', 'Sexta'],
+    availability: [
+      { day: 'Segunda', period: 'Noite' },
+      { day: 'Quarta', period: 'Noite' },
+      { day: 'Sexta', period: 'Noite' }
+    ],
     skillLevel: 'Avançado',
     joined: '2022-01-15'
   },
@@ -19,7 +23,11 @@ const musicians: Musician[] = [
     email: 'maria.oliveira@example.com',
     phone: '(11) 91234-5678',
     instruments: ['Piano', 'Teclado'],
-    availability: ['Terça', 'Quinta', 'Sábado'],
+    availability: [
+      { day: 'Terça', period: 'Noite' },
+      { day: 'Quinta', period: 'Noite' },
+      { day: 'Sábado', period: 'Tarde' }
+    ],
     skillLevel: 'Intermediário',
     joined: '2022-03-10'
   },
@@ -29,7 +37,11 @@ const musicians: Musician[] = [
     email: 'pedro.santos@example.com',
     phone: '(11) 99876-5432',
     instruments: ['Bateria'],
-    availability: ['Segunda', 'Quinta', 'Domingo'],
+    availability: [
+      { day: 'Segunda', period: 'Noite' },
+      { day: 'Quinta', period: 'Noite' },
+      { day: 'Domingo', period: 'Manhã' }
+    ],
     skillLevel: 'Avançado',
     joined: '2021-11-20'
   },
@@ -39,7 +51,11 @@ const musicians: Musician[] = [
     email: 'ana.costa@example.com',
     phone: '(11) 98765-1234',
     instruments: ['Baixo', 'Contrabaixo'],
-    availability: ['Quarta', 'Sexta', 'Sábado'],
+    availability: [
+      { day: 'Quarta', period: 'Noite' },
+      { day: 'Sexta', period: 'Noite' },
+      { day: 'Sábado', period: 'Tarde' }
+    ],
     skillLevel: 'Intermediário',
     joined: '2022-02-05'
   },
