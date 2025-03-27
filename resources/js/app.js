@@ -5,7 +5,7 @@ import React from 'react';
 import App from './src/App';
 import './src/index.css';
 
-// Inicializa a aplicação React
+// Initialize the React application
 if (document.getElementById('root')) {
     createRoot(document.getElementById('root')).render(
         <React.StrictMode>

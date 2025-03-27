@@ -1,20 +1,18 @@
 
-import { User } from './user';
-
-export type Instrument = 'violão' | 'guitarra' | 'baixo' | 'bateria' | 'teclado' | 'piano' | 'vocal' | 'violino' | 'flauta' | 'saxofone' | 'trompete';
-
 export interface Musician {
   id: number;
-  userId: number;
-  user?: User;
   name: string;
-  instruments: Instrument[];
-  availability: {
-    day: string;
-    period: 'manhã' | 'tarde' | 'noite';
-  }[];
-  phoneNumber?: string;
-  experience?: string;
+  email: string;
+  phone: string;
+  instruments: string[];
+  availability: string[];
+  skillLevel: string;
+  joined: string;
+}
+
+export interface Instrument {
+  id: number;
+  name: string;
 }
 
 export interface Song {
@@ -22,6 +20,6 @@ export interface Song {
   title: string;
   key: string;
   style: string;
-  lastPlayed?: string;
-  timesPlayed: number;
+  timesPlayed?: number;
+  lastPlayed?: string | null;
 }

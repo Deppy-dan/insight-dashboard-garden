@@ -1,230 +1,82 @@
+
 import { Schedule } from '@/types/schedule';
+import { Song } from '@/types/musician';
 import { getAllSongs } from './songService';
 
-// Dados simulados para agendamentos
+// Mock data for schedules
 const schedules: Schedule[] = [
   {
     id: 1,
-    date: '2024-09-25',
-    time: '09:00',
-    title: 'Culto de Domingo - Manhã',
-    description: 'Culto regular de domingo pela manhã',
+    title: 'Culto de Domingo',
+    date: '2023-09-10',
+    time: '19:00',
     location: 'Templo Principal',
+    description: 'Culto de celebração dominical',
     musicians: [
-      { musicianId: 1, instrument: 'violão', confirmed: true },
-      { musicianId: 2, instrument: 'bateria', confirmed: true },
-      { musicianId: 4, instrument: 'teclado', confirmed: false }
+      { musicianId: 1, instrument: 'Guitarra', confirmed: true },
+      { musicianId: 2, instrument: 'Piano', confirmed: true },
+      { musicianId: 3, instrument: 'Bateria', confirmed: false }
     ],
-    songs: [
-      { id: 1, title: 'Grande é o Senhor', key: 'G', style: 'Louvor', lastPlayed: '15/05/2023', timesPlayed: 12 },
-      { id: 3, title: 'Corpo e Família', key: 'E', style: 'Congregacional', lastPlayed: '04/06/2023', timesPlayed: 6 }
-    ]
+    songs: []
   },
   {
     id: 2,
-    date: '2024-09-25',
-    time: '19:00',
-    title: 'Culto de Domingo - Noite',
-    description: 'Culto regular de domingo à noite',
-    location: 'Templo Principal',
+    title: 'Reunião de Jovens',
+    date: '2023-09-16',
+    time: '20:00',
+    location: 'Salão Multiuso',
+    description: 'Encontro semanal da juventude',
     musicians: [
-      { musicianId: 2, instrument: 'baixo', confirmed: true },
-      { musicianId: 3, instrument: 'guitarra', confirmed: true }
+      { musicianId: 1, instrument: 'Violão', confirmed: true },
+      { musicianId: 4, instrument: 'Baixo', confirmed: true }
     ],
-    songs: [
-      { id: 2, title: 'Deus é Deus', key: 'D', style: 'Adoração', lastPlayed: '28/05/2023', timesPlayed: 8 },
-      { id: 5, title: 'Águas Purificadoras', key: 'D', style: 'Louvor', lastPlayed: '18/06/2023', timesPlayed: 4 }
-    ]
-  },
-  {
-    id: 3,
-    date: '2024-09-28',
-    time: '19:30',
-    title: 'Culto de Jovens',
-    description: 'Culto especial para jovens',
-    location: 'Salão de Eventos',
-    musicians: [
-      { musicianId: 1, instrument: 'vocal', confirmed: false },
-      { musicianId: 3, instrument: 'violão', confirmed: true }
-    ],
-    songs: [
-      { id: 6, title: 'Revelation Song', key: 'D', style: 'Adoração', lastPlayed: '25/06/2023', timesPlayed: 3 },
-      { id: 7, title: 'Maravilhosa Graça', key: 'G', style: 'Congregacional', lastPlayed: '02/07/2023', timesPlayed: 2 }
-    ]
-  },
-  {
-    id: 4,
-    date: '2024-10-02',
-    time: '19:30',
-    title: 'Culto de Quarta',
-    description: 'Culto regular de quarta-feira',
-    location: 'Templo Principal',
-    musicians: [
-      { musicianId: 1, instrument: 'violão', confirmed: true },
-      { musicianId: 4, instrument: 'teclado', confirmed: true }
-    ],
-    songs: [
-      { id: 4, title: 'Tua Graça me Basta', key: 'C', style: 'Adoração', lastPlayed: '11/06/2023', timesPlayed: 5 },
-      { id: 1, title: 'Grande é o Senhor', key: 'G', style: 'Louvor', lastPlayed: '15/05/2023', timesPlayed: 12 }
-    ]
+    songs: []
   }
 ];
 
-export async function getSchedulesByMusicianId(musicianId: number): Promise<Schedule[]> {
-  // Simula um atraso de rede
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const musicianSchedules = schedules.filter(
-        schedule => schedule.musicians.some(m => m.musicianId === musicianId)
-      );
-      resolve(musicianSchedules);
-    }, 500);
-  });
-}
-
-export async function getAllSchedules(): Promise<Schedule[]> {
-  // Simula um atraso de rede
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve([...schedules]);
-    }, 500);
-  });
-}
-
-export async function addSchedule(schedule: Omit<Schedule, 'id'>): Promise<Schedule> {
-  // Simulando a criação de um novo ID
-  const newId = schedules.length > 0 ? Math.max(...schedules.map(s => s.id)) + 1 : 1;
-  
-  const newSchedule: Schedule = {
-    ...schedule,
-    id: newId
-  };
-  
-  schedules.push(newSchedule);
-  
-  // Simula um atraso de rede
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(newSchedule);
-    }, 500);
-  });
-}
-
-export async function assignMusicianToSchedule(
-  scheduleId: number, 
-  musicianId: number, 
-  instrument: string
-): Promise<boolean> {
-  // Encontrar o agendamento
-  const schedule = schedules.find(s => s.id === scheduleId);
-  if (!schedule) return Promise.resolve(false);
-  
-  // Verificar se o músico já está atribuído
-  const existingAssignment = schedule.musicians.find(m => m.musicianId === musicianId);
-  if (existingAssignment) {
-    existingAssignment.instrument = instrument;
-  } else {
-    schedule.musicians.push({
-      musicianId,
-      instrument,
-      confirmed: false
-    });
-  }
-  
-  // Simula um atraso de rede
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(true);
-    }, 500);
-  });
-}
-
-export async function confirmMusicianAttendance(
-  scheduleId: number,
-  musicianId: number,
-  confirmed: boolean
-): Promise<boolean> {
-  // Encontrar o agendamento
-  const schedule = schedules.find(s => s.id === scheduleId);
-  if (!schedule) return Promise.resolve(false);
-  
-  // Encontrar o músico no agendamento
-  const musician = schedule.musicians.find(m => m.musicianId === musicianId);
-  if (!musician) return Promise.resolve(false);
-  
-  // Atualizar confirmação
-  musician.confirmed = confirmed;
-  
-  // Simula um atraso de rede
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(true);
-    }, 500);
-  });
-}
-
-export async function addSongsToSchedule(
-  scheduleId: number,
-  songIds: number[]
-): Promise<boolean> {
-  // Encontrar o agendamento
-  const schedule = schedules.find(s => s.id === scheduleId);
-  if (!schedule) return Promise.resolve(false);
-  
-  // Obter todas as músicas
+// Initialize the songs in schedules
+(async () => {
   const allSongs = await getAllSongs();
-  
-  // Filtrar as músicas pelos IDs fornecidos
-  const songsToAdd = allSongs.filter(song => songIds.includes(song.id));
-  
-  // Atualizar as músicas do agendamento
-  schedule.songs = songsToAdd;
-  
-  // Simula um atraso de rede
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(true);
-    }, 500);
-  });
-}
-
-export async function createSchedule(schedule: Omit<Schedule, 'id'>): Promise<Schedule> {
-  // Simulando a criação de um novo ID
-  const newId = schedules.length > 0 ? Math.max(...schedules.map(s => s.id)) + 1 : 1;
-  
-  const newSchedule: Schedule = {
-    ...schedule,
-    id: newId,
-  };
-  
-  schedules.push(newSchedule);
-  
-  // Simula um atraso de rede
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(newSchedule);
-    }, 500);
-  });
-}
-
-export async function updateSchedule(id: number, scheduleUpdate: Partial<Schedule>): Promise<Schedule> {
-  const index = schedules.findIndex(s => s.id === id);
-  
-  if (index === -1) {
-    return Promise.reject(new Error(`Agendamento com ID ${id} não encontrado`));
+  if (allSongs.length > 0) {
+    schedules[0].songs = [allSongs[0], allSongs[2]];
+    schedules[1].songs = [allSongs[1], allSongs[3]];
   }
-  
-  const updatedSchedule = {
-    ...schedules[index],
-    ...scheduleUpdate,
+})();
+
+export const getAllSchedules = async (): Promise<Schedule[]> => {
+  // Simulate API delay
+  await new Promise(resolve => setTimeout(resolve, 500));
+  return schedules;
+};
+
+export const getScheduleById = async (id: number): Promise<Schedule | undefined> => {
+  await new Promise(resolve => setTimeout(resolve, 500));
+  return schedules.find(schedule => schedule.id === id);
+};
+
+export const createSchedule = async (schedule: Omit<Schedule, 'id'>): Promise<Schedule> => {
+  await new Promise(resolve => setTimeout(resolve, 500));
+  const newSchedule = {
+    ...schedule,
+    id: schedules.length + 1
   };
+  schedules.push(newSchedule);
+  return newSchedule;
+};
+
+export const updateSchedule = async (id: number, updates: Partial<Schedule>): Promise<Schedule> => {
+  await new Promise(resolve => setTimeout(resolve, 500));
+  const index = schedules.findIndex(s => s.id === id);
+  if (index === -1) throw new Error('Schedule not found');
   
-  schedules[index] = updatedSchedule;
+  schedules[index] = { ...schedules[index], ...updates };
+  return schedules[index];
+};
+
+export const deleteSchedule = async (id: number): Promise<void> => {
+  await new Promise(resolve => setTimeout(resolve, 500));
+  const index = schedules.findIndex(s => s.id === id);
+  if (index === -1) throw new Error('Schedule not found');
   
-  // Simula um atraso de rede
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(updatedSchedule);
-    }, 500);
-  });
-}
+  schedules.splice(index, 1);
+};
