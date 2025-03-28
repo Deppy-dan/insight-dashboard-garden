@@ -1,5 +1,5 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { Helmet } from 'react-helmet';
 import { useNavigate } from 'react-router-dom';
 import { format, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -91,7 +91,6 @@ const MusicGroupManagement = () => {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
-  // Formulario de música
   const songForm = useForm<z.infer<typeof songFormSchema>>({
     resolver: zodResolver(songFormSchema),
     defaultValues: {
@@ -101,7 +100,6 @@ const MusicGroupManagement = () => {
     },
   });
 
-  // Formulario de evento
   const scheduleForm = useForm<z.infer<typeof scheduleFormSchema>>({
     resolver: zodResolver(scheduleFormSchema),
     defaultValues: {
@@ -114,19 +112,16 @@ const MusicGroupManagement = () => {
     },
   });
 
-  // Buscar músicas
   const { data: songs, isLoading: isSongsLoading } = useQuery({
     queryKey: ['songs'],
     queryFn: getAllSongs,
   });
 
-  // Buscar músicos
   const { data: musicians, isLoading: isMusiciansLoading } = useQuery({
     queryKey: ['musicians'],
     queryFn: getAllMusicians,
   });
 
-  // Mutações para adicionar música
   const addSongMutation = useMutation({
     mutationFn: (formData: z.infer<typeof songFormSchema>) => {
       const newSong: Omit<Song, 'id'> = {
@@ -156,7 +151,6 @@ const MusicGroupManagement = () => {
     }
   });
 
-  // Mutações para criar evento
   const createScheduleMutation = useMutation({
     mutationFn: (formData: z.infer<typeof scheduleFormSchema>) => {
       const newSchedule: Omit<Schedule, 'id'> = {
@@ -192,17 +186,14 @@ const MusicGroupManagement = () => {
     }
   });
 
-  // Lógica para adicionar música
   const handleAddSong = async (values: z.infer<typeof songFormSchema>) => {
     addSongMutation.mutate(values);
   };
 
-  // Lógica para criar evento
   const handleCreateSchedule = async (values: z.infer<typeof scheduleFormSchema>) => {
     createScheduleMutation.mutate(values);
   };
 
-  // Formatador de data
   const formatDate = (dateString: string) => {
     try {
       return format(parseISO(dateString), "dd 'de' MMMM 'de' yyyy", { locale: ptBR });

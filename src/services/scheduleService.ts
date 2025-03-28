@@ -1,6 +1,6 @@
 
 import { Schedule } from '@/types/schedule';
-import { Song } from '@/types/musician';
+import { Song } from '@/types/song';  // Importando do arquivo correto
 import { getAllSongs } from './songService';
 
 // Mock data for schedules

@@ -9,6 +9,9 @@ export interface Song {
   chords?: string;
   category: string;
   notes?: string;
+  style?: string;
+  timesPlayed?: number;
+  lastPlayed?: string | null;
   createdAt?: string;
   updatedAt?: string;
 }

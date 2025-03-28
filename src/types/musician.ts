@@ -15,11 +15,7 @@ export interface Instrument {
   name: string;
 }
 
-export interface Song {
-  id: number;
-  title: string;
-  key: string;
-  style: string;
-  timesPlayed?: number;
-  lastPlayed?: string | null;
-}
+// Removendo esta interface Song que está em conflito com src/types/song.ts
+// e importando a interface Song correta do arquivo song.ts
+import { Song } from './song';
+export { Song };

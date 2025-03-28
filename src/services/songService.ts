@@ -11,6 +11,9 @@ const songs: Song[] = [
     key: 'D',
     tempo: 80,
     category: 'Adoração',
+    style: 'Hino',
+    timesPlayed: 12,
+    lastPlayed: '2023-08-15',
     lyrics: 'Senhor meu Deus, quando eu maravilhado\nFico a pensar nas obras de Tuas mãos\nO céu azul de estrelas pontilhado\nO Teu poder mostrando a criação\n\nEntão minh\'alma canta a Ti, Senhor\nQuão grande és Tu, quão grande és Tu\nEntão minh\'alma canta a Ti, Senhor\nQuão grande és Tu, quão grande és Tu',
     chords: 'D        G         D\nSenhor meu Deus, quando eu maravilhado\nD       A        D\nFico a pensar nas obras de Tuas mãos\nD      G      D\nO céu azul de estrelas pontilhado\nD        A       D\nO Teu poder mostrando a criação'
   },
@@ -21,6 +24,9 @@ const songs: Song[] = [
     key: 'G',
     tempo: 75,
     category: 'Louvor',
+    style: 'Contemporâneo',
+    timesPlayed: 8,
+    lastPlayed: '2023-09-01',
     lyrics: 'Em espírito, em verdade\nTe adoramos, te adoramos\nEm espírito, em verdade\nTe adoramos, te adoramos\n\nRei dos reis e Senhor\nTe entregamos nosso viver\nRei dos reis e Senhor\nTe entregamos nosso viver',
     chords: 'G             C\nEm espírito, em verdade\nG                 D\nTe adoramos, te adoramos\nG             C\nEm espírito, em verdade\nG       D        G\nTe adoramos, te adoramos'
   },
@@ -31,6 +37,9 @@ const songs: Song[] = [
     key: 'Em',
     tempo: 138,
     category: 'Congregacional',
+    style: 'Contemporâneo',
+    timesPlayed: 5,
+    lastPlayed: '2023-09-10',
     lyrics: 'Tu és a minha luz, a minha salvação\nE a Ti me renderei\nE se em Ti confiar, não hei de temer\nMeu coração vai cantar\n\nTu és a minha luz, a minha salvação\nA Ti me renderei\nE se em Ti confiar, não hei de temer\nMeu coração vai cantar\n\nMaranata, ora vem\nMaranata, ora vem, Senhor Jesus',
     chords: 'Em          C           G          D\nTu és a minha luz, a minha salvação\nEm        C     D\nE a Ti me renderei\nEm       C        G         D\nE se em Ti confiar, não hei de temer\nEm     C       D\nMeu coração vai cantar'
   },
@@ -41,6 +50,9 @@ const songs: Song[] = [
     key: 'C',
     tempo: 65,
     category: 'Congregacional',
+    style: 'Hino',
+    timesPlayed: 15,
+    lastPlayed: '2023-08-27',
     lyrics: 'Deus está aqui\nTão certo como o ar que eu respiro\nTão certo como o amanhã que se levanta\nTão certo como eu te falo\nE podes me ouvir\n\nDeus está aqui\nTão certo como o ar que eu respiro\nTão certo como o amanhã que se levanta\nTão certo como eu te falo\nE podes me ouvir\n\nPodes me ouvir',
     chords: 'C           G\nDeus está aqui\nC                              F\nTão certo como o ar que eu respiro\nC                                     G\nTão certo como o amanhã que se levanta\nC                F\nTão certo como eu te falo\nG          C\nE podes me ouvir'
   }
@@ -109,5 +121,15 @@ export const deleteSong = async (id: number): Promise<void> => {
     if (index === -1) throw new Error('Música não encontrada');
     
     songs.splice(index, 1);
+  }
+};
+
+// Funções adicionais que estavam faltando
+export const updateScheduleWithSongs = async (scheduleId: number, songIds: number[]): Promise<void> => {
+  try {
+    await api.post(`/schedules/${scheduleId}/songs`, { songs: songIds });
+  } catch (error) {
+    console.error('Erro ao atualizar músicas da escala:', error);
+    // Implementação mock apenas para evitar erros
   }
 };

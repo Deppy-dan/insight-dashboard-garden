@@ -1,5 +1,5 @@
 
-import { Song } from './musician';
+import { Song } from './song';
 
 export interface ScheduleMusician {
   musicianId: number;
@@ -13,7 +13,7 @@ export interface Schedule {
   date: string;
   time: string;
   description?: string;
-  location?: string;
+  location: string;
   musicians: ScheduleMusician[];
   songs: Song[];
 }
