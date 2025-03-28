@@ -1,4 +1,3 @@
-
 import api from './api';
 import { Song } from '@/types/song';
 
@@ -132,4 +131,8 @@ export const updateScheduleWithSongs = async (scheduleId: number, songIds: numbe
     console.error('Erro ao atualizar músicas da escala:', error);
     // Implementação mock apenas para evitar erros
   }
+};
+
+export const addSong = async (song: Omit<Song, 'id'>): Promise<Song> => {
+  return createSong(song);
 };

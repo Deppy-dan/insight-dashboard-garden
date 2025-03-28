@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -170,12 +169,17 @@ const ScheduleForm: React.FC<ScheduleFormProps> = ({ schedule, onSuccess }) => {
 
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
     try {
-      // Prepare data for submission
+      // Prepare data for submission with proper types
+      const songObjects = songs?.filter(song => selectedSongs.includes(song.id)) || [];
+      
       const submissionData = {
-        ...data,
+        title: data.title,
         date: format(data.date, 'yyyy-MM-dd'),
+        time: data.time,
+        location: data.location,
+        description: data.description,
         musicians: selectedMusicians,
-        songs: selectedSongs
+        songs: songObjects
       };
       
       if (schedule) {

@@ -46,7 +46,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { addSong, getAllSongs } from '@/services/songService';
+import { createSong, getAllSongs } from '@/services/songService';
 import { createSchedule } from '@/services/scheduleService';
 import { getAllMusicians } from '@/services/musicianService';
 import { Musician, Song } from '@/types/musician';
@@ -127,11 +127,14 @@ const MusicGroupManagement = () => {
       const newSong: Omit<Song, 'id'> = {
         title: formData.title || "",
         key: formData.key || "",
+        artist: "Desconhecido",
+        tempo: 0,
+        category: "Geral",
         style: formData.style || "",
         timesPlayed: formData.timesPlayed || 0,
         lastPlayed: formData.lastPlayed ? format(formData.lastPlayed, 'yyyy-MM-dd') : null
       };
-      return addSong(newSong);
+      return createSong(newSong);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['songs'] });

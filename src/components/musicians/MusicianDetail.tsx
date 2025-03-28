@@ -145,7 +145,7 @@ const MusicianDetail: React.FC<MusicianDetailProps> = ({ id }) => {
                       <TableCell>{schedule.location}</TableCell>
                       <TableCell>{musicianInSchedule?.instrument || 'N/A'}</TableCell>
                       <TableCell>
-                        <Badge variant={musicianInSchedule?.confirmed ? "success" : "secondary"}>
+                        <Badge variant={musicianInSchedule?.confirmed ? "secondary" : "outline"}>
                           {musicianInSchedule?.confirmed ? 'Confirmado' : 'Pendente'}
                         </Badge>
                       </TableCell>

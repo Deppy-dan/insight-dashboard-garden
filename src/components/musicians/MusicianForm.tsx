@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -36,25 +35,20 @@ import { Calendar } from '@/components/ui/calendar';
 import { CalendarIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-// List of common instruments
 const INSTRUMENTS = [
   'Violão', 'Guitarra', 'Baixo', 'Bateria', 'Piano', 'Teclado', 
   'Violino', 'Contrabaixo', 'Flauta', 'Saxofone', 'Trompete',
   'Vocal/Canto', 'Outros'
 ];
 
-// List of days of the week
 const DAYS = [
   'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'
 ];
 
-// List of periods
 const PERIODS = ['Manhã', 'Tarde', 'Noite'];
 
-// List of skill levels
 const SKILL_LEVELS = ['Iniciante', 'Intermediário', 'Avançado', 'Profissional'];
 
-// Validation schema
 const formSchema = z.object({
   name: z.string().min(2, 'Nome deve ter pelo menos 2 caracteres'),
   email: z.string().email('Email inválido'),
@@ -79,7 +73,6 @@ const MusicianForm: React.FC<MusicianFormProps> = ({ musician, onSuccess }) => {
     defaultValues: musician ? {
       ...musician,
       joined: musician.joined ? new Date(musician.joined) : undefined,
-      // Ensure availability is in the correct format
       availability: musician.availability || []
     } : {
       name: '',
@@ -94,11 +87,21 @@ const MusicianForm: React.FC<MusicianFormProps> = ({ musician, onSuccess }) => {
 
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
     try {
+      const musicianData = {
+        name: data.name,
+        email: data.email,
+        phone: data.phone,
+        instruments: data.instruments,
+        availability: data.availability || [],
+        skillLevel: data.skillLevel,
+        joined: data.joined ? format(data.joined, 'yyyy-MM-dd') : format(new Date(), 'yyyy-MM-dd')
+      };
+      
       if (musician) {
-        await updateMusician(musician.id, data);
+        await updateMusician(musician.id, musicianData);
         toast.success('Músico atualizado com sucesso');
       } else {
-        await createMusician(data);
+        await createMusician(musicianData);
         toast.success('Músico adicionado com sucesso');
       }
       onSuccess();

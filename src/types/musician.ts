@@ -15,7 +15,6 @@ export interface Instrument {
   name: string;
 }
 
-// Removendo esta interface Song que está em conflito com src/types/song.ts
-// e importando a interface Song correta do arquivo song.ts
+// Using export type for re-exporting when isolatedModules is enabled
 import { Song } from './song';
-export { Song };
+export type { Song };
