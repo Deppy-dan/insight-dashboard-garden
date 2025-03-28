@@ -1,5 +1,5 @@
 import api from './api';
-import { Song } from '@/types/song';
+import { Song } from '../types/song';
 
 // Mock data for songs
 const songs: Song[] = [

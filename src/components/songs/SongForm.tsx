@@ -1,13 +1,12 @@
-
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { createSong, updateSong } from '@/services/songService';
-import { Song } from '@/types/song';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
+import { createSong, updateSong } from '../../services/songService';
+import { Song } from '../../types/song';
+import { Button } from '../../components/ui/button';
+import { Input } from '../../components/ui/input';
+import { Textarea } from '../../components/ui/textarea';
 import { toast } from 'sonner';
 import {
   Form,
@@ -17,14 +16,14 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
+} from '../../components/ui/form';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from '../../components/ui/select';
 
 // List of musical keys
 const MUSIC_KEYS = [
@@ -74,11 +73,25 @@ const SongForm: React.FC<SongFormProps> = ({ song, onSuccess }) => {
 
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
     try {
+      const songData = {
+        title: data.title,
+        artist: data.artist,
+        key: data.key,
+        tempo: data.tempo,
+        category: data.category,
+        lyrics: data.lyrics || '',
+        chords: data.chords || '',
+        style: 'Contemporâneo',
+        lastPlayed: new Date().toISOString().split('T')[0],
+        timesPlayed: 0,
+        notes: data.notes || ''
+      };
+      
       if (song) {
-        await updateSong(song.id, data);
+        await updateSong(song.id, songData);
         toast.success('Música atualizada com sucesso');
       } else {
-        await createSong(data);
+        await createSong(songData);
         toast.success('Música adicionada com sucesso');
       }
       onSuccess();

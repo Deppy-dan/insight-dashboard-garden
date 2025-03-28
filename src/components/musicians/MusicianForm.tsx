@@ -4,11 +4,11 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { createMusician, updateMusician } from '@/services/musicianService';
-import { Musician } from '@/types/musician';
-import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Input } from '@/components/ui/input';
+import { createMusician, updateMusician } from '../../services/musicianService';
+import { Musician } from '../../types/musician';
+import { Button } from '../../components/ui/button';
+import { Checkbox } from '../../components/ui/checkbox';
+import { Input } from '../../components/ui/input';
 import { toast } from 'sonner';
 import {
   Form,
@@ -18,22 +18,22 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
+} from '../../components/ui/form';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from '../../components/ui/select';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '@/components/ui/popover';
-import { Calendar } from '@/components/ui/calendar';
+} from '../../components/ui/popover';
+import { Calendar } from '../../components/ui/calendar';
 import { CalendarIcon } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn } from '../../lib/utils';
 
 const INSTRUMENTS = [
   'Violão', 'Guitarra', 'Baixo', 'Bateria', 'Piano', 'Teclado', 
@@ -57,7 +57,7 @@ const formSchema = z.object({
   availability: z.array(z.object({
     day: z.string(),
     period: z.string()
-  })).optional(),
+  })).default([]),
   skillLevel: z.string().min(1, 'Selecione o nível de habilidade'),
   joined: z.date().optional()
 });
@@ -87,12 +87,17 @@ const MusicianForm: React.FC<MusicianFormProps> = ({ musician, onSuccess }) => {
 
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
     try {
+      const availability = (data.availability || []).map(item => ({
+        day: item.day,
+        period: item.period
+      }));
+      
       const musicianData = {
         name: data.name,
         email: data.email,
         phone: data.phone,
         instruments: data.instruments,
-        availability: data.availability || [],
+        availability: availability,
         skillLevel: data.skillLevel,
         joined: data.joined ? format(data.joined, 'yyyy-MM-dd') : format(new Date(), 'yyyy-MM-dd')
       };

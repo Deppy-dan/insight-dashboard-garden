@@ -1,12 +1,11 @@
-
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { useToast } from "@/components/ui/use-toast";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { useToast } from "../components/ui/use-toast";
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
 import {
   Form,
   FormControl,
@@ -14,10 +13,10 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+} from "../components/ui/form";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../components/ui/card";
 import { Music } from "lucide-react";
-import { login } from "@/services/authService";
+import { login } from "../services/authService";
 
 const formSchema = z.object({
   email: z.string().email("Digite um email válido"),
@@ -45,7 +44,6 @@ const Login = () => {
         description: `Bem-vindo, ${user.name}!`,
       });
       
-      // Redireciona para a página principal
       navigate("/music-management");
     } catch (error) {
       toast({
