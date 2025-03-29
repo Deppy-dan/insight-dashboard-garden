@@ -1,5 +1,9 @@
+
 import api from './api';
 import { Song } from '../types/song';
+
+// Define a NewSong type for song creation without ID
+export type NewSong = Omit<Song, 'id' | 'timesPlayed' | 'lastPlayed' | 'style'>;
 
 // Mock data for songs
 const songs: Song[] = [
@@ -133,6 +137,12 @@ export const updateScheduleWithSongs = async (scheduleId: number, songIds: numbe
   }
 };
 
-export const addSong = async (song: Omit<Song, 'id'>): Promise<Song> => {
-  return createSong(song);
+export const addSong = async (song: NewSong): Promise<Song> => {
+  const fullSong: Omit<Song, 'id'> = {
+    ...song,
+    style: 'Contemporâneo',
+    timesPlayed: 0,
+    lastPlayed: new Date().toISOString().split('T')[0]
+  };
+  return createSong(fullSong);
 };
