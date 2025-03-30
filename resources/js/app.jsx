@@ -2,10 +2,10 @@
 import './bootstrap';
 import { createRoot } from 'react-dom/client';
 import React from 'react';
-import App from './App'; // Note que estamos importando do caminho local, não de src
-import './index.css'; // Ajuste o caminho se necessário
+import App from './App'; // Import from local App.jsx
+import './index.css';
 
-// Garante que o elemento root existe
+// Ensure the root element exists
 const rootElement = document.getElementById('root');
 if (!rootElement) {
     const rootDiv = document.createElement('div');
@@ -13,7 +13,7 @@ if (!rootElement) {
     document.body.appendChild(rootDiv);
 }
 
-// Inicializa a aplicação React
+// Initialize the React application
 createRoot(rootElement).render(
     <React.StrictMode>
         <App />

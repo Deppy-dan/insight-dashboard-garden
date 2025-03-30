@@ -12,12 +12,12 @@
     
     <!-- Styles -->
     @viteReactRefresh
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @vite(['resources/css/app.css', 'resources/js/app.jsx'])
 </head>
 <body class="antialiased">
     <div id="root"></div>
     <script>
-        // Adicionar token CSRF aos cabeçalhos de requisições Ajax
+        // Add CSRF token to Ajax request headers
         window.csrfToken = "{{ csrf_token() }}";
     </script>
 </body>
