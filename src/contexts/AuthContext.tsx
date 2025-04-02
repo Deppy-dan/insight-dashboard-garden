@@ -1,5 +1,5 @@
 
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
 import { User } from '@/types/user';
 import { getCurrentUser, login as loginService, logout as logoutService } from '@/services/authService';
 
@@ -11,10 +11,18 @@ interface AuthContextType {
   isAdmin: boolean;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+// Definir valor inicial para o contexto para evitar o undefined
+const AuthContext = createContext<AuthContextType>({
+  user: null,
+  loading: false,
+  login: async () => {
+    throw new Error('login not implemented');
+  },
+  logout: () => {},
+  isAdmin: false,
+});
 
-// Fix: Use React.FC type properly with explicit return type
-export const AuthProvider = ({ children }: { children: React.ReactNode }): React.ReactElement => {
+export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -36,14 +44,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }): React
     setUser(null);
   };
 
+  const value = {
+    user, 
+    loading, 
+    login, 
+    logout, 
+    isAdmin: user?.role === 'admin'
+  };
+
   return (
-    <AuthContext.Provider value={{ 
-      user, 
-      loading, 
-      login, 
-      logout, 
-      isAdmin: user?.role === 'admin' 
-    }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );
@@ -51,7 +61,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }): React
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (context === undefined) {
+  if (!context) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
