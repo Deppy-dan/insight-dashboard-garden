@@ -14,8 +14,8 @@ export default defineConfig({
     ],
     resolve: {
         alias: {
-            '@': '/resources/js',
-            '@src': '/resources/src',
+            '@': path.resolve(__dirname, './resources/js'),
+            '@src': path.resolve(__dirname, './resources/src'),
         },
     },
     optimizeDeps: {
