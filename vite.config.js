@@ -21,6 +21,7 @@ export default defineConfig({
             '@services': path.resolve(__dirname, './resources/src/services'),
             '@types': path.resolve(__dirname, './resources/src/types'),
         },
+        extensions: ['.js', '.jsx', '.ts', '.tsx'],
     },
     optimizeDeps: {
         include: ['react', 'react-dom'],

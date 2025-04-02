@@ -1,7 +1,7 @@
 
 import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
-import { User } from '@/types/user';
-import { getCurrentUser, login as loginService, logout as logoutService } from '@/services/authService';
+import { User } from '@/types/user.js';
+import { getCurrentUser, login as loginService, logout as logoutService } from '@/services/authService.js';
 
 interface AuthContextType {
   user: User | null;
@@ -11,7 +11,7 @@ interface AuthContextType {
   isAdmin: boolean;
 }
 
-// Definir valor inicial para o contexto para evitar o undefined
+// Define default context values to avoid undefined
 const AuthContext = createContext<AuthContextType>({
   user: null,
   loading: false,
