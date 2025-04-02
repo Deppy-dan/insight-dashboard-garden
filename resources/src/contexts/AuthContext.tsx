@@ -11,7 +11,7 @@ interface AuthContextType {
   isAdmin: boolean;
 }
 
-// Definir valor inicial para o contexto para evitar o undefined
+// Define default context values to avoid undefined
 const AuthContext = createContext<AuthContextType>({
   user: null,
   loading: false,
