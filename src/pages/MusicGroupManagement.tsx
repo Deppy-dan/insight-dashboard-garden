@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import { useNavigate } from 'react-router-dom';
@@ -215,6 +216,9 @@ const MusicGroupManagement = () => {
     );
   }
 
+  // Make sure musicians is always an array
+  const musiciansList = Array.isArray(musicians) ? musicians : [];
+
   return (
     <Layout>
       <div className="space-y-6">
@@ -353,6 +357,7 @@ const MusicGroupManagement = () => {
                                     date > addDays(new Date(), 365) || isBefore(date, new Date())
                                   }
                                   initialFocus
+                                  className="pointer-events-auto"
                                 />
                               </PopoverContent>
                             </Popover>
@@ -411,44 +416,53 @@ const MusicGroupManagement = () => {
 
                     <div>
                       <FormLabel>Músicos</FormLabel>
-                      <Table>
-                        <TableHeader>
-                          <TableRow>
-                            <TableHead>Nome</TableHead>
-                            <TableHead>Instrumento</TableHead>
-                            <TableHead className="text-right">Confirmado</TableHead>
-                          </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {musicians?.map((musician) => (
-                            <TableRow key={musician.id}>
-                              <TableCell className="font-medium">{musician.name}</TableCell>
-                              <TableCell>
-                                <Select>
-                                  <SelectTrigger className="w-[180px]">
-                                    <SelectValue placeholder="Selecione" />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    {musician.instruments.map((instrument) => (
-                                      <SelectItem key={instrument} value={instrument}>
-                                        {instrument}
-                                      </SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
-                              </TableCell>
-                              <TableCell className="text-right">
-                                <Checkbox id={`terms${musician.id}`} />
-                                <Label
-                                  htmlFor={`terms${musician.id}`}
-                                  className="font-normal"
-                                >
-                                </Label>
-                              </TableCell>
+                      {Array.isArray(musiciansList) && musiciansList.length > 0 ? (
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead>Nome</TableHead>
+                              <TableHead>Instrumento</TableHead>
+                              <TableHead className="text-right">Confirmado</TableHead>
                             </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
+                          </TableHeader>
+                          <TableBody>
+                            {musiciansList.map((musician) => (
+                              <TableRow key={musician.id}>
+                                <TableCell className="font-medium">{musician.name}</TableCell>
+                                <TableCell>
+                                  <Select>
+                                    <SelectTrigger className="w-[180px]">
+                                      <SelectValue placeholder="Selecione" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      {musician.instruments && Array.isArray(musician.instruments) ? 
+                                        musician.instruments.map((instrument) => (
+                                          <SelectItem key={instrument} value={instrument}>
+                                            {instrument}
+                                          </SelectItem>
+                                        )) : 
+                                        <SelectItem value="default">Instrumento padrão</SelectItem>
+                                      }
+                                    </SelectContent>
+                                  </Select>
+                                </TableCell>
+                                <TableCell className="text-right">
+                                  <Checkbox id={`terms${musician.id}`} />
+                                  <Label
+                                    htmlFor={`terms${musician.id}`}
+                                    className="font-normal"
+                                  >
+                                  </Label>
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      ) : (
+                        <div className="text-center py-4 text-muted-foreground">
+                          Nenhum músico disponível
+                        </div>
+                      )}
                     </div>
 
                     <Button type="submit">Criar</Button>
@@ -479,7 +493,7 @@ const MusicGroupManagement = () => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {!songs || songs.length === 0 ? (
+              {!songs || !Array.isArray(songs) || songs.length === 0 ? (
                 <div className="text-center py-8">
                   Nenhuma música adicionada ainda.
                 </div>
