@@ -2,8 +2,8 @@
 import './bootstrap';
 import { createRoot } from 'react-dom/client';
 import React from 'react';
-import App from './App';
-import './index.css';
+import App from '../src/App.js';
+import '../src/index.css';
 
 // Ensure the root element exists
 document.addEventListener('DOMContentLoaded', () => {
