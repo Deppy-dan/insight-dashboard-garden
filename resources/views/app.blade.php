@@ -20,5 +20,6 @@
         // Add CSRF token to Ajax request headers
         window.csrfToken = "{{ csrf_token() }}";
     </script>
+    <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
 </body>
 </html>
