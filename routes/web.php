@@ -19,9 +19,9 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 Route::post('/login', [AuthenticatedSessionController::class, 'login']);
 Route::post('/logout', [AuthenticatedSessionController::class, 'destroy']);
 
-// Test route
-Route::get('/teste', function () {
-    return response()->json(['status' => 'API carregada corretamente!']);
+// Rota de teste para verificar se o Laravel está funcionando
+Route::get('/laravel-test', function () {
+    return response()->json(['status' => 'Laravel está funcionando!']);
 });
 
 // Route to serve the React application on any other URL

@@ -7,6 +7,8 @@
 
 import axios from 'axios';
 
+console.log('Bootstrap.js carregado');
+
 // Configure axios to include CSRF token in all requests
 window.axios = axios;
 window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
@@ -15,9 +17,10 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 const token = document.head.querySelector('meta[name="csrf-token"]');
 if (token) {
     window.axios.defaults.headers.common['X-CSRF-TOKEN'] = token.content;
+    console.log('CSRF token configurado');
 } else {
     console.error('CSRF token not found');
 }
 
-// If you're using Laravel Sanctum for authentication, uncomment this:
-// window.axios.defaults.withCredentials = true;
+// Uncomment this line if using Laravel Sanctum for authentication
+window.axios.defaults.withCredentials = true;
