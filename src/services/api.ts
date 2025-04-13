@@ -21,4 +21,16 @@ api.interceptors.request.use(config => {
   return config;
 });
 
+// Função de teste para verificar se a API está acessível
+export const testApiConnection = async () => {
+  try {
+    const response = await api.get('/teste');
+    console.log('Resposta da API de teste:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Erro ao conectar com a API:', error);
+    throw error;
+  }
+};
+
 export default api;

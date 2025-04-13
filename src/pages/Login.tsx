@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -18,8 +17,8 @@ import {
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../components/ui/card";
 import { Music } from "lucide-react";
 import { login } from "../services/authService";
+import ApiTest from "../components/ApiTest";
 
-// Define the form schema at the module level
 const formSchema = z.object({
   email: z.string().email("Digite um email válido"),
   password: z.string().min(6, "A senha deve ter pelo menos 6 caracteres"),
@@ -57,8 +56,8 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-muted/50 p-4">
-      <Card className="w-full max-w-md">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-background to-muted/50 p-4">
+      <Card className="w-full max-w-md mb-8">
         <CardHeader className="space-y-2 text-center">
           <div className="flex justify-center mb-2">
             <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center">
@@ -111,6 +110,8 @@ const Login = () => {
           </div>
         </CardFooter>
       </Card>
+      
+      <ApiTest />
     </div>
   );
 };
