@@ -12,7 +12,7 @@
     
     <!-- Vite Assets -->
     @viteReactRefresh
-    @vite(['resources/css/app.css', 'resources/js/app.jsx'])
+    @vite(['resources/js/app.jsx'])
 </head>
 <body class="antialiased">
     <div id="root"></div>
