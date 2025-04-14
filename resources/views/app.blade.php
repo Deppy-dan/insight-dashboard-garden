@@ -21,7 +21,5 @@
         window.csrfToken = "{{ csrf_token() }}";
         console.log('Blade template carregado');
     </script>
-    <!-- GPT Engineer script precisa vir antes dos outros scripts -->
-    <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
 </body>
 </html>
