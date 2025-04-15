@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { format, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -66,6 +67,10 @@ const UserProfile = () => {
     );
   }
 
+  // Ensure instruments and availability are arrays
+  const instruments = Array.isArray(musician.instruments) ? musician.instruments : [];
+  const availability = Array.isArray(musician.availability) ? musician.availability : [];
+
   return (
     <Layout>
       <div className="space-y-6">
@@ -94,9 +99,9 @@ const UserProfile = () => {
               <div>
                 <h3 className="font-medium text-sm text-muted-foreground">Instrumentos</h3>
                 <div className="flex flex-wrap gap-2 mt-1">
-                  {musician.instruments.map((instrument) => (
+                  {instruments.map((instrument, idx) => (
                     <span
-                      key={instrument}
+                      key={idx}
                       className="px-2 py-1 bg-primary/10 text-primary rounded-full text-xs font-medium"
                     >
                       {instrument}
@@ -107,7 +112,7 @@ const UserProfile = () => {
               <div>
                 <h3 className="font-medium text-sm text-muted-foreground">Disponibilidade</h3>
                 <div className="flex flex-wrap gap-2 mt-1">
-                  {musician.availability.map((avail, index) => (
+                  {availability.map((avail, index) => (
                     <span
                       key={index}
                       className="px-2 py-1 bg-secondary/10 text-secondary rounded-full text-xs font-medium"
@@ -159,7 +164,8 @@ const UserProfile = () => {
                       </TableHeader>
                       <TableBody>
                         {upcomingSchedules.map((schedule) => {
-                          const musicianInSchedule = schedule.musicians.find(
+                          const musicians = Array.isArray(schedule.musicians) ? schedule.musicians : [];
+                          const musicianInSchedule = musicians.find(
                             (m) => m.musicianId === musician.id
                           );
                           
@@ -181,7 +187,7 @@ const UserProfile = () => {
                               </TableCell>
                               <TableCell>
                                 <span className="px-2 py-1 bg-primary/10 text-primary rounded-full text-xs font-medium">
-                                  {musicianInSchedule?.instrument}
+                                  {musicianInSchedule?.instrument || 'N/A'}
                                 </span>
                               </TableCell>
                               <TableCell>
@@ -220,7 +226,8 @@ const UserProfile = () => {
                       </TableHeader>
                       <TableBody>
                         {pastSchedules.map((schedule) => {
-                          const musicianInSchedule = schedule.musicians.find(
+                          const musicians = Array.isArray(schedule.musicians) ? schedule.musicians : [];
+                          const musicianInSchedule = musicians.find(
                             (m) => m.musicianId === musician.id
                           );
                           
@@ -242,7 +249,7 @@ const UserProfile = () => {
                               </TableCell>
                               <TableCell>
                                 <span className="px-2 py-1 bg-primary/10 text-primary rounded-full text-xs font-medium">
-                                  {musicianInSchedule?.instrument}
+                                  {musicianInSchedule?.instrument || 'N/A'}
                                 </span>
                               </TableCell>
                               <TableCell>
