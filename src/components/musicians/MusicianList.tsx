@@ -73,6 +73,9 @@ const MusicianList = () => {
     return <div className="text-center p-8 text-red-500">Erro ao carregar músicos</div>;
   }
 
+  // Ensure musicians is always an array
+  const musiciansList = Array.isArray(musicians) ? musicians : [];
+
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
@@ -111,40 +114,45 @@ const MusicianList = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {musicians && musicians.length > 0 ? (
-              musicians.map((musician) => (
-                <TableRow key={musician.id}>
-                  <TableCell className="font-medium">{musician.name}</TableCell>
-                  <TableCell>{musician.email}</TableCell>
-                  <TableCell>{musician.phone}</TableCell>
-                  <TableCell>{musician.instruments?.join(', ')}</TableCell>
-                  <TableCell>{musician.skillLevel}</TableCell>
-                  <TableCell>
-                    {musician.joined ? format(new Date(musician.joined), 'dd/MM/yyyy') : 'N/A'}
-                  </TableCell>
-                  <TableCell>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
-                          <span className="sr-only">Abrir menu</span>
-                          <MoreVertical className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Ações</DropdownMenuLabel>
-                        <DropdownMenuItem onClick={() => handleEdit(musician)}>
-                          <Edit className="mr-2 h-4 w-4" />
-                          Editar
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleDelete(musician.id)}>
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          Excluir
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
-              ))
+            {musiciansList.length > 0 ? (
+              musiciansList.map((musician) => {
+                // Ensure instruments is an array
+                const instruments = Array.isArray(musician.instruments) ? musician.instruments : [];
+                
+                return (
+                  <TableRow key={musician.id}>
+                    <TableCell className="font-medium">{musician.name}</TableCell>
+                    <TableCell>{musician.email}</TableCell>
+                    <TableCell>{musician.phone}</TableCell>
+                    <TableCell>{instruments.join(', ')}</TableCell>
+                    <TableCell>{musician.skillLevel}</TableCell>
+                    <TableCell>
+                      {musician.joined ? format(new Date(musician.joined), 'dd/MM/yyyy') : 'N/A'}
+                    </TableCell>
+                    <TableCell>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" className="h-8 w-8 p-0">
+                            <span className="sr-only">Abrir menu</span>
+                            <MoreVertical className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuLabel>Ações</DropdownMenuLabel>
+                          <DropdownMenuItem onClick={() => handleEdit(musician)}>
+                            <Edit className="mr-2 h-4 w-4" />
+                            Editar
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleDelete(musician.id)}>
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Excluir
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                );
+              })
             ) : (
               <TableRow>
                 <TableCell colSpan={7} className="text-center">

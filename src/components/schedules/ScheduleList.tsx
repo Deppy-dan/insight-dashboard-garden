@@ -82,6 +82,9 @@ const ScheduleList: React.FC = () => {
     return <div className="text-center p-8 text-red-500">Erro ao carregar escalas</div>;
   }
 
+  // Ensure schedules is always an array
+  const schedulesList = Array.isArray(schedules) ? schedules : [];
+
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
@@ -120,52 +123,58 @@ const ScheduleList: React.FC = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {schedules && schedules.length > 0 ? (
-              schedules.map((schedule) => (
-                <TableRow key={schedule.id}>
-                  <TableCell className="font-medium">{schedule.title}</TableCell>
-                  <TableCell>
-                    {format(new Date(schedule.date), 'dd/MM/yyyy')}
-                  </TableCell>
-                  <TableCell>{schedule.time}</TableCell>
-                  <TableCell>{schedule.location}</TableCell>
-                  <TableCell>
-                    <Badge variant="outline">
-                      {schedule.musicians?.length || 0} músicos
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant="outline">
-                      {schedule.songs?.length || 0} músicas
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
-                          <span className="sr-only">Abrir menu</span>
-                          <MoreVertical className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Ações</DropdownMenuLabel>
-                        <DropdownMenuItem onClick={() => handleDetails(schedule)}>
-                          <Calendar className="mr-2 h-4 w-4" />
-                          Detalhes
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleEdit(schedule)}>
-                          <Edit className="mr-2 h-4 w-4" />
-                          Editar
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleDelete(schedule.id)}>
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          Excluir
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
-              ))
+            {schedulesList.length > 0 ? (
+              schedulesList.map((schedule) => {
+                // Ensure musicians and songs are arrays
+                const musicians = Array.isArray(schedule.musicians) ? schedule.musicians : [];
+                const songs = Array.isArray(schedule.songs) ? schedule.songs : [];
+                
+                return (
+                  <TableRow key={schedule.id}>
+                    <TableCell className="font-medium">{schedule.title}</TableCell>
+                    <TableCell>
+                      {format(new Date(schedule.date), 'dd/MM/yyyy')}
+                    </TableCell>
+                    <TableCell>{schedule.time}</TableCell>
+                    <TableCell>{schedule.location}</TableCell>
+                    <TableCell>
+                      <Badge variant="outline">
+                        {musicians.length} músicos
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline">
+                        {songs.length} músicas
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" className="h-8 w-8 p-0">
+                            <span className="sr-only">Abrir menu</span>
+                            <MoreVertical className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuLabel>Ações</DropdownMenuLabel>
+                          <DropdownMenuItem onClick={() => handleDetails(schedule)}>
+                            <Calendar className="mr-2 h-4 w-4" />
+                            Detalhes
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleEdit(schedule)}>
+                            <Edit className="mr-2 h-4 w-4" />
+                            Editar
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleDelete(schedule.id)}>
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Excluir
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                );
+              })
             ) : (
               <TableRow>
                 <TableCell colSpan={7} className="text-center">

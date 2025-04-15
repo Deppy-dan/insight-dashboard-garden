@@ -85,6 +85,9 @@ const SongList = () => {
     return <div className="text-center p-8 text-red-500">Erro ao carregar músicas</div>;
   }
 
+  // Ensure songs is always an array
+  const songsList = Array.isArray(songs) ? songs : [];
+
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
@@ -122,8 +125,8 @@ const SongList = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {songs && songs.length > 0 ? (
-              songs.map((song) => (
+            {songsList.length > 0 ? (
+              songsList.map((song) => (
                 <TableRow key={song.id}>
                   <TableCell className="font-medium">{song.title}</TableCell>
                   <TableCell>{song.artist}</TableCell>

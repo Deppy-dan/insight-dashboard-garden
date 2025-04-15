@@ -218,6 +218,8 @@ const MusicGroupManagement = () => {
 
   // Make sure musicians is always an array
   const musiciansList = Array.isArray(musicians) ? musicians : [];
+  // Make sure songs is always an array
+  const songsList = Array.isArray(songs) ? songs : [];
 
   return (
     <Layout>
@@ -426,36 +428,41 @@ const MusicGroupManagement = () => {
                             </TableRow>
                           </TableHeader>
                           <TableBody>
-                            {musiciansList.map((musician) => (
-                              <TableRow key={musician.id}>
-                                <TableCell className="font-medium">{musician.name}</TableCell>
-                                <TableCell>
-                                  <Select>
-                                    <SelectTrigger className="w-[180px]">
-                                      <SelectValue placeholder="Selecione" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                      {musician.instruments && Array.isArray(musician.instruments) ? 
-                                        musician.instruments.map((instrument) => (
-                                          <SelectItem key={instrument} value={instrument}>
-                                            {instrument}
-                                          </SelectItem>
-                                        )) : 
-                                        <SelectItem value="default">Instrumento padrão</SelectItem>
-                                      }
-                                    </SelectContent>
-                                  </Select>
-                                </TableCell>
-                                <TableCell className="text-right">
-                                  <Checkbox id={`terms${musician.id}`} />
-                                  <Label
-                                    htmlFor={`terms${musician.id}`}
-                                    className="font-normal"
-                                  >
-                                  </Label>
-                                </TableCell>
-                              </TableRow>
-                            ))}
+                            {musiciansList.map((musician) => {
+                              // Ensure musician.instruments is an array before mapping
+                              const instruments = Array.isArray(musician.instruments) ? musician.instruments : [];
+                              
+                              return (
+                                <TableRow key={musician.id}>
+                                  <TableCell className="font-medium">{musician.name}</TableCell>
+                                  <TableCell>
+                                    <Select>
+                                      <SelectTrigger className="w-[180px]">
+                                        <SelectValue placeholder="Selecione" />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        {instruments.length > 0 ? 
+                                          instruments.map((instrument) => (
+                                            <SelectItem key={instrument} value={instrument}>
+                                              {instrument}
+                                            </SelectItem>
+                                          )) : 
+                                          <SelectItem value="default">Instrumento padrão</SelectItem>
+                                        }
+                                      </SelectContent>
+                                    </Select>
+                                  </TableCell>
+                                  <TableCell className="text-right">
+                                    <Checkbox id={`terms${musician.id}`} />
+                                    <Label
+                                      htmlFor={`terms${musician.id}`}
+                                      className="font-normal"
+                                    >
+                                    </Label>
+                                  </TableCell>
+                                </TableRow>
+                              );
+                            })}
                           </TableBody>
                         </Table>
                       ) : (
@@ -493,7 +500,7 @@ const MusicGroupManagement = () => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {!songs || !Array.isArray(songs) || songs.length === 0 ? (
+              {!songsList.length ? (
                 <div className="text-center py-8">
                   Nenhuma música adicionada ainda.
                 </div>
@@ -507,7 +514,7 @@ const MusicGroupManagement = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {songs.map((song) => (
+                    {songsList.map((song) => (
                       <TableRow key={song.id}>
                         <TableCell>{song.title}</TableCell>
                         <TableCell>{song.key}</TableCell>

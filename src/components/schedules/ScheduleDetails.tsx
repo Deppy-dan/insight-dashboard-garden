@@ -55,7 +55,7 @@ const ScheduleDetails: React.FC<ScheduleDetailsProps> = ({ schedule }) => {
               <h3 className="text-lg font-medium">Músicos</h3>
             </div>
             
-            {schedule.musicians && schedule.musicians.length > 0 ? (
+            {schedule.musicians && Array.isArray(schedule.musicians) && schedule.musicians.length > 0 ? (
               <div className="space-y-2">
                 {schedule.musicians.map((musician) => (
                   <MusicianCard key={musician.musicianId} musician={musician} />
@@ -74,7 +74,7 @@ const ScheduleDetails: React.FC<ScheduleDetailsProps> = ({ schedule }) => {
               <h3 className="text-lg font-medium">Músicas</h3>
             </div>
             
-            {schedule.songs && schedule.songs.length > 0 ? (
+            {schedule.songs && Array.isArray(schedule.songs) && schedule.songs.length > 0 ? (
               <div className="space-y-2">
                 {schedule.songs.map((song, index) => {
                   const songId = typeof song === 'number' ? song : song.id;

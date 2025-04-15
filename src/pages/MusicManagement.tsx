@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import Layout from '@/components/layout/Layout';
@@ -31,14 +32,18 @@ const MusicManagement = () => {
 
   useEffect(() => {
     const loadData = async () => {
-      const schedulesData = await getAllSchedules();
-      setSchedules(schedulesData);
+      try {
+        const schedulesData = await getAllSchedules();
+        setSchedules(Array.isArray(schedulesData) ? schedulesData : []);
 
-      const musiciansData = await getAllMusicians();
-      setMusicians(musiciansData);
+        const musiciansData = await getAllMusicians();
+        setMusicians(Array.isArray(musiciansData) ? musiciansData : []);
 
-      const songsData = await getAllSongs();
-      setSongs(songsData);
+        const songsData = await getAllSongs();
+        setSongs(Array.isArray(songsData) ? songsData : []);
+      } catch (error) {
+        console.error("Error loading data:", error);
+      }
     };
 
     loadData();
@@ -53,19 +58,28 @@ const MusicManagement = () => {
   };
 
   const handleCreateSong = async () => {
-    await createSong(newSong);
-    const updatedSongs = await getAllSongs();
-    setSongs(updatedSongs);
-    setNewSong({
-      title: '',
-      artist: '',
-      key: '',
-      tempo: 120,
-      category: '',
-      lyrics: '',
-      chords: '',
-    });
+    try {
+      await createSong(newSong);
+      const updatedSongs = await getAllSongs();
+      setSongs(Array.isArray(updatedSongs) ? updatedSongs : []);
+      setNewSong({
+        title: '',
+        artist: '',
+        key: '',
+        tempo: 120,
+        category: '',
+        lyrics: '',
+        chords: '',
+      });
+    } catch (error) {
+      console.error("Error creating song:", error);
+    }
   };
+
+  // Ensure all data is in array format
+  const schedulesArray = Array.isArray(schedules) ? schedules : [];
+  const musiciansArray = Array.isArray(musicians) ? musicians : [];
+  const songsArray = Array.isArray(songs) ? songs : [];
 
   return (
     <Layout>
@@ -119,7 +133,7 @@ const MusicManagement = () => {
               </CardContent>
             </Card>
             <ul>
-              {songs.map(song => (
+              {songsArray.map(song => (
                 <li key={song.id}>{song.title} - {song.artist}</li>
               ))}
             </ul>
@@ -132,7 +146,7 @@ const MusicManagement = () => {
               </CardHeader>
               <CardContent className="grid gap-4">
                 <ul>
-                  {schedules.map(schedule => (
+                  {schedulesArray.map(schedule => (
                     <li key={schedule.id}>{schedule.title} - {schedule.date}</li>
                   ))}
                 </ul>
@@ -147,9 +161,12 @@ const MusicManagement = () => {
               </CardHeader>
               <CardContent className="grid gap-4">
                 <ul>
-                  {musicians.map(musician => (
-                    <li key={musician.id}>{musician.name} - {musician.instruments.join(', ')}</li>
-                  ))}
+                  {musiciansArray.map(musician => {
+                    const instruments = Array.isArray(musician.instruments) ? musician.instruments : [];
+                    return (
+                      <li key={musician.id}>{musician.name} - {instruments.join(', ')}</li>
+                    );
+                  })}
                 </ul>
               </CardContent>
             </Card>

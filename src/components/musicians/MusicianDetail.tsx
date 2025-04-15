@@ -48,6 +48,11 @@ const MusicianDetail: React.FC<MusicianDetailProps> = ({ id }) => {
     return <div className="text-center p-8 text-red-500">Erro ao carregar detalhes do músico</div>;
   }
 
+  // Ensure arrays exist before mapping
+  const instruments = Array.isArray(musician.instruments) ? musician.instruments : [];
+  const availability = Array.isArray(musician.availability) ? musician.availability : [];
+  const schedulesList = Array.isArray(schedules) ? schedules : [];
+
   return (
     <div className="space-y-6">
       <Card>
@@ -80,7 +85,7 @@ const MusicianDetail: React.FC<MusicianDetailProps> = ({ id }) => {
           <div>
             <h3 className="text-lg font-medium mb-2">Instrumentos</h3>
             <div className="flex flex-wrap gap-2">
-              {musician.instruments?.map((instrument, index) => (
+              {instruments.map((instrument, index) => (
                 <Badge key={index} variant="secondary">
                   {instrument}
                 </Badge>
@@ -92,9 +97,9 @@ const MusicianDetail: React.FC<MusicianDetailProps> = ({ id }) => {
 
           <div>
             <h3 className="text-lg font-medium mb-2">Disponibilidade</h3>
-            {musician.availability && musician.availability.length > 0 ? (
+            {availability.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-                {musician.availability.map((av, index) => (
+                {availability.map((av, index) => (
                   <div key={index} className="flex items-center space-x-2">
                     <Badge variant="outline">{av.day}</Badge>
                     <span className="text-sm">{av.period}</span>
@@ -116,7 +121,7 @@ const MusicianDetail: React.FC<MusicianDetailProps> = ({ id }) => {
         <CardContent>
           {isLoadingSchedules ? (
             <div className="flex justify-center p-4">Carregando escalas...</div>
-          ) : schedules && schedules.length > 0 ? (
+          ) : schedulesList.length > 0 ? (
             <Table>
               <TableHeader>
                 <TableRow>
@@ -129,9 +134,11 @@ const MusicianDetail: React.FC<MusicianDetailProps> = ({ id }) => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {schedules.map((schedule) => {
+                {schedulesList.map((schedule) => {
+                  // Ensure musicians is an array
+                  const musicians = Array.isArray(schedule.musicians) ? schedule.musicians : [];
                   // Find this musician in the schedule's musicians array
-                  const musicianInSchedule = schedule.musicians.find(
+                  const musicianInSchedule = musicians.find(
                     (m) => m.musicianId === musician.id
                   );
                   
