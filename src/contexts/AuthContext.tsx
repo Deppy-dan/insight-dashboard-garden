@@ -11,7 +11,7 @@ interface AuthContextType {
   isAdmin: boolean;
 }
 
-// Define default context values to avoid undefined
+// Define default context values
 const AuthContext = createContext<AuthContextType>({
   user: null,
   loading: false,
@@ -27,21 +27,35 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Verificar se há um usuário já logado
-    const user = getCurrentUser();
-    setUser(user);
-    setLoading(false);
+    try {
+      // Verificar se há um usuário já logado
+      const fetchedUser = getCurrentUser();
+      setUser(fetchedUser);
+    } catch (error) {
+      console.error("Erro ao recuperar usuário:", error);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  const login = async (email: string, password: string) => {
-    const loggedInUser = await loginService(email, password);
-    setUser(loggedInUser);
-    return loggedInUser;
+  const login = async (email: string, password: string): Promise<User> => {
+    try {
+      const loggedInUser = await loginService(email, password);
+      setUser(loggedInUser);
+      return loggedInUser;
+    } catch (error) {
+      console.error('Erro ao fazer login:', error);
+      throw error;
+    }
   };
 
   const logout = () => {
-    logoutService();
-    setUser(null);
+    try {
+      logoutService();
+      setUser(null);
+    } catch (error) {
+      console.error('Erro ao fazer logout:', error);
+    }
   };
 
   const value = {
@@ -59,9 +73,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   );
 };
 
-export const useAuth = () => {
+export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
-  if (!context) {
+  if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;

@@ -1,3 +1,4 @@
+
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -16,7 +17,7 @@ import {
 } from "../components/ui/form";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../components/ui/card";
 import { Music } from "lucide-react";
-import { login } from "../services/authService";
+import { useAuth } from "../contexts/AuthContext";
 import ApiTest from "../components/ApiTest";
 
 const formSchema = z.object({
@@ -27,6 +28,7 @@ const formSchema = z.object({
 const Login = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { login } = useAuth();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -47,6 +49,7 @@ const Login = () => {
       
       navigate("/music-management");
     } catch (error) {
+      console.error("Erro no login:", error);
       toast({
         variant: "destructive",
         title: "Erro ao fazer login",
