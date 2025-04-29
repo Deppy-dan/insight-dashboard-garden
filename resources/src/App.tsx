@@ -1,21 +1,21 @@
 
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
+import { Toaster } from "./components/ui/toaster";
+import { Toaster as Sonner } from "./components/ui/sonner";
+import { TooltipProvider } from "./components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
-import { AuthProvider } from "@/contexts/AuthContext";
-import Login from "@/pages/Login";
-import NotFound from "@/pages/NotFound";
-import MusicGroupManagement from "@/pages/MusicGroupManagement";
-import UserProfile from "@/pages/UserProfile";
-import AdminDashboard from "@/pages/AdminDashboard";
-import MusicManagement from "@/pages/MusicManagement";
-import SongManagement from "@/pages/SongManagement";
-import ScheduleManagement from "@/pages/ScheduleManagement";
+import { AuthProvider } from "./contexts/AuthContext";
+import Login from "./pages/Login";
+import NotFound from "./pages/NotFound";
+import MusicGroupManagement from "./pages/MusicGroupManagement";
+import UserProfile from "./pages/UserProfile";
+import AdminDashboard from "./pages/AdminDashboard";
+import MusicManagement from "./pages/MusicManagement";
+import SongManagement from "./pages/SongManagement";
+import ScheduleManagement from "./pages/ScheduleManagement";
 import { Helmet } from "react-helmet";
-import ProtectedRoute from "@/components/auth/ProtectedRoute";
+import ProtectedRoute from "./components/auth/ProtectedRoute";
 
 const queryClient = new QueryClient({
   defaultOptions: {
