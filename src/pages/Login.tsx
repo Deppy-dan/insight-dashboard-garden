@@ -28,7 +28,15 @@ const formSchema = z.object({
 const Login = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { login } = useAuth();
+  const { login, user } = useAuth();
+
+  // Redirect if already logged in
+  React.useEffect(() => {
+    if (user) {
+      console.log("Usuário já está logado, redirecionando para /music-management");
+      navigate("/music-management");
+    }
+  }, [user, navigate]);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -52,8 +60,8 @@ const Login = () => {
       // Aumentando o delay para garantir que o contexto de autenticação seja atualizado
       setTimeout(() => {
         console.log("Navegando para /music-management");
-        navigate("/music-management");
-      }, 300);
+        navigate("/music-management", { replace: true });
+      }, 500);
       
     } catch (error) {
       console.error("Erro no login:", error);

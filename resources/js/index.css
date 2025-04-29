@@ -1,3 +1,11 @@
 
-@import '../src/index.css';
+/* Base styles for Laravel integration */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Import fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
+
+/* Custom styles for Laravel integration */
 /* Estilos específicos para a integração com Laravel podem ser adicionados aqui */
