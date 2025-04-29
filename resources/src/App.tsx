@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -6,14 +7,14 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import { AnimatePresence } from "framer-motion";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { useAuth } from "@/contexts/AuthContext";
-import Login from "./pages/Login";
-import NotFound from "./pages/NotFound";
-import MusicGroupManagement from "./pages/MusicGroupManagement";
-import UserProfile from "./pages/UserProfile";
-import AdminDashboard from "./pages/AdminDashboard";
-import MusicManagement from "./pages/MusicManagement";
-import SongManagement from "./pages/SongManagement";
-import ScheduleManagement from "./pages/ScheduleManagement";
+import Login from "@/pages/Login";
+import NotFound from "@/pages/NotFound";
+import MusicGroupManagement from "@/pages/MusicGroupManagement";
+import UserProfile from "@/pages/UserProfile";
+import AdminDashboard from "@/pages/AdminDashboard";
+import MusicManagement from "@/pages/MusicManagement";
+import SongManagement from "@/pages/SongManagement";
+import ScheduleManagement from "@/pages/ScheduleManagement";
 import { Helmet } from "react-helmet";
 
 const queryClient = new QueryClient({
