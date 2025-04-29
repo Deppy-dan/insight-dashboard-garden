@@ -27,21 +27,26 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    try {
-      // Verificar se há um usuário já logado
-      const fetchedUser = getCurrentUser();
-      setUser(fetchedUser);
-    } catch (error) {
-      console.error("Erro ao recuperar usuário:", error);
-    } finally {
-      setLoading(false);
-    }
+    const checkUser = () => {
+      try {
+        // Verificar se há um usuário já logado
+        const fetchedUser = getCurrentUser();
+        setUser(fetchedUser);
+      } catch (error) {
+        console.error("Erro ao recuperar usuário:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    checkUser();
   }, []);
 
   const login = async (email: string, password: string): Promise<User> => {
     try {
       const loggedInUser = await loginService(email, password);
       setUser(loggedInUser);
+      console.log("Login bem-sucedido:", loggedInUser);
       return loggedInUser;
     } catch (error) {
       console.error('Erro ao fazer login:', error);
