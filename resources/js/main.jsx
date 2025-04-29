@@ -2,7 +2,7 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App';
-import '../src/index.css';
+import './index.css'; // Corrigindo o caminho para o CSS
 
 console.log('React main.jsx está sendo carregado');
 

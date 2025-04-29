@@ -40,17 +40,21 @@ const Login = () => {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      await login(values.email, values.password);
+      console.log("Tentando fazer login com:", values.email);
+      const user = await login(values.email, values.password);
+      console.log("Login realizado com sucesso:", user);
       
       toast({
         title: "Login realizado com sucesso",
         description: "Bem-vindo ao sistema de gestão musical",
       });
       
-      // Utilizamos setTimeout para garantir que o estado do usuário seja atualizado antes da navegação
+      // Aumentando o delay para garantir que o contexto de autenticação seja atualizado
       setTimeout(() => {
-        navigate("/music-management", { replace: true });
-      }, 100);
+        console.log("Navegando para /music-management");
+        navigate("/music-management");
+      }, 300);
+      
     } catch (error) {
       console.error("Erro no login:", error);
       toast({

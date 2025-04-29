@@ -27,11 +27,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const checkUser = () => {
+    const checkUser = async () => {
       try {
         // Verificar se há um usuário já logado
         const fetchedUser = getCurrentUser();
-        setUser(fetchedUser);
+        if (fetchedUser) {
+          console.log("Usuário recuperado do localStorage:", fetchedUser);
+          setUser(fetchedUser);
+        }
       } catch (error) {
         console.error("Erro ao recuperar usuário:", error);
       } finally {
@@ -45,8 +48,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const login = async (email: string, password: string): Promise<User> => {
     try {
       const loggedInUser = await loginService(email, password);
+      console.log("Login bem-sucedido, atualizando estado do usuário:", loggedInUser);
       setUser(loggedInUser);
-      console.log("Login bem-sucedido:", loggedInUser);
       return loggedInUser;
     } catch (error) {
       console.error('Erro ao fazer login:', error);
@@ -58,6 +61,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     try {
       logoutService();
       setUser(null);
+      console.log("Logout realizado com sucesso");
     } catch (error) {
       console.error('Erro ao fazer logout:', error);
     }
@@ -70,6 +74,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     logout, 
     isAdmin: user?.role === 'admin'
   };
+
+  console.log("AuthContext state:", { user, loading, isAdmin: value.isAdmin });
 
   return (
     <AuthContext.Provider value={value}>
