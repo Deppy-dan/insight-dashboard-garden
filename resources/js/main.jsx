@@ -1,8 +1,8 @@
 
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import App from './App';
-import './index.css'; // Using the local index.css file
+import App from '../src/App';
+import './index.css'; // Using the correctly formatted index.css
 
 console.log('React main.jsx está sendo carregado');
 

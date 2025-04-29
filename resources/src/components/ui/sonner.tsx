@@ -1,9 +1,9 @@
 
-import { Toaster as Sonner } from "sonner"
-import { useTheme } from "@/hooks/use-theme"
+import { Toaster as Sonner } from "sonner";
+import { useTheme } from "@/hooks/use-theme";
 
 export function Toaster(props) {
-  const { theme = "light" } = useTheme()
+  const { theme = "light" } = useTheme();
 
   return (
     <Sonner
@@ -22,5 +22,5 @@ export function Toaster(props) {
       }}
       {...props}
     />
-  )
+  );
 }
