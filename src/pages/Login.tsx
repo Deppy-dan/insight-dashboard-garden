@@ -61,7 +61,7 @@ const Login = () => {
       setTimeout(() => {
         console.log("Navegando para /music-management");
         navigate("/music-management", { replace: true });
-      }, 800); // Increasing the delay further to ensure context updates
+      }, 1000); // Aumentando ainda mais o delay
       
     } catch (error) {
       console.error("Erro no login:", error);

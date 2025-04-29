@@ -16,6 +16,7 @@ import MusicManagement from "@/pages/MusicManagement";
 import SongManagement from "@/pages/SongManagement";
 import ScheduleManagement from "@/pages/ScheduleManagement";
 import { Helmet } from "react-helmet";
+import ProtectedRoute from "@/components/auth/ProtectedRoute";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -25,26 +26,6 @@ const queryClient = new QueryClient({
     },
   },
 });
-
-const AppRoutes = () => {
-  const { user, isAdmin } = useAuth();
-
-  return (
-    <AnimatePresence mode="wait">
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/profile" element={user ? <UserProfile /> : <Navigate to="/login" />} />
-        <Route path="/music-management" element={user ? <MusicGroupManagement /> : <Navigate to="/login" />} />
-        <Route path="/musicians" element={user ? <MusicManagement /> : <Navigate to="/login" />} />
-        <Route path="/songs" element={user ? <SongManagement /> : <Navigate to="/login" />} />
-        <Route path="/schedules" element={user ? <ScheduleManagement /> : <Navigate to="/login" />} />
-        <Route path="/admin" element={user && isAdmin ? <AdminDashboard /> : <Navigate to={user ? "/music-management" : "/login"} />} />
-        <Route path="/" element={<Navigate to={user ? "/music-management" : "/login"} />} />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-    </AnimatePresence>
-  );
-};
 
 const App = () => (
   <>
@@ -57,7 +38,43 @@ const App = () => (
           <Toaster />
           <Sonner />
           <Router>
-            <AppRoutes />
+            <AnimatePresence mode="wait">
+              <Routes>
+                <Route path="/login" element={<Login />} />
+                <Route path="/profile" element={
+                  <ProtectedRoute>
+                    <UserProfile />
+                  </ProtectedRoute>
+                } />
+                <Route path="/music-management" element={
+                  <ProtectedRoute>
+                    <MusicGroupManagement />
+                  </ProtectedRoute>
+                } />
+                <Route path="/musicians" element={
+                  <ProtectedRoute>
+                    <MusicManagement />
+                  </ProtectedRoute>
+                } />
+                <Route path="/songs" element={
+                  <ProtectedRoute>
+                    <SongManagement />
+                  </ProtectedRoute>
+                } />
+                <Route path="/schedules" element={
+                  <ProtectedRoute>
+                    <ScheduleManagement />
+                  </ProtectedRoute>
+                } />
+                <Route path="/admin" element={
+                  <ProtectedRoute requireAdmin={true}>
+                    <AdminDashboard />
+                  </ProtectedRoute>
+                } />
+                <Route path="/" element={<Navigate to="/login" />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </AnimatePresence>
           </Router>
         </TooltipProvider>
       </AuthProvider>
