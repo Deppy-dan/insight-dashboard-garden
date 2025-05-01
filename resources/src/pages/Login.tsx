@@ -28,14 +28,15 @@ const Login = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { login, user } = useAuth();
+  const [isLoggingIn, setIsLoggingIn] = React.useState(false);
 
   // Redirect if already logged in
   React.useEffect(() => {
-    if (user) {
+    if (user && !isLoggingIn) {
       console.log("Usuário já está logado, redirecionando para /music-management");
-      navigate("/music-management");
+      navigate("/music-management", { replace: true });
     }
-  }, [user, navigate]);
+  }, [user, navigate, isLoggingIn]);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -47,7 +48,9 @@ const Login = () => {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
+      setIsLoggingIn(true);
       console.log("Tentando fazer login com:", values.email);
+      
       const user = await login(values.email, values.password);
       console.log("Login realizado com sucesso:", user);
       
@@ -56,12 +59,8 @@ const Login = () => {
         description: "Bem-vindo ao sistema de gestão musical",
       });
       
-      // Aumentando o delay para garantir que o contexto de autenticação seja atualizado
-      setTimeout(() => {
-        console.log("Navegando para /music-management");
-        navigate("/music-management", { replace: true });
-      }, 2000); // Aumentando ainda mais o delay para 2 segundos
-      
+      console.log("Navegando para /music-management após login bem-sucedido");
+      navigate("/music-management", { replace: true });
     } catch (error) {
       console.error("Erro no login:", error);
       toast({
@@ -69,6 +68,7 @@ const Login = () => {
         title: "Erro ao fazer login",
         description: "Email ou senha incorretos",
       });
+      setIsLoggingIn(false);
     }
   };
 
@@ -115,8 +115,8 @@ const Login = () => {
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="w-full">
-                Entrar
+              <Button type="submit" className="w-full" disabled={isLoggingIn}>
+                {isLoggingIn ? 'Entrando...' : 'Entrar'}
               </Button>
             </form>
           </Form>

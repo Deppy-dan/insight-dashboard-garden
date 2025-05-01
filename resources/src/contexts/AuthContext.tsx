@@ -45,7 +45,7 @@ const login = async (email: string, password: string) => {
       } else {
         reject(new Error('Credenciais inválidas'));
       }
-    }, 500); // Delay de 500ms para simular a latência da rede
+    }, 300); // Reduce delay to make login faster
   });
 };
 
@@ -124,8 +124,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     logout: handleLogout, 
     isAdmin: user?.role === 'admin'
   };
-
-  console.log("AuthContext state:", { user, loading, isAdmin: value.isAdmin });
 
   return (
     <AuthContext.Provider value={value}>
