@@ -1,10 +1,12 @@
 
-import React from "react";
-import { useForm } from "react-hook-form";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { useToast } from "../hooks/use-toast";
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
 import {
   Form,
   FormControl,
@@ -12,19 +14,29 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+} from "../components/ui/form";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../components/ui/card";
 import { Music } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "../contexts/AuthContext";
 
 const formSchema = z.object({
   email: z.string().email("Digite um email válido"),
   password: z.string().min(6, "A senha deve ter pelo menos 6 caracteres"),
 });
 
-export default function Login() {
+const Login = () => {
+  const navigate = useNavigate();
   const { toast } = useToast();
-  const [isLoggingIn, setIsLoggingIn] = React.useState(false);
+  const { login, user } = useAuth();
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (user && !isLoggingIn) {
+      console.log("Usuário já está logado, redirecionando para /music-management");
+      navigate("/music-management", { replace: true });
+    }
+  }, [user, navigate, isLoggingIn]);
 
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -39,11 +51,16 @@ export default function Login() {
       setIsLoggingIn(true);
       console.log("Tentando fazer login com:", values.email);
       
+      const user = await login(values.email, values.password);
+      console.log("Login realizado com sucesso:", user);
+      
       toast({
         title: "Login realizado com sucesso",
         description: "Bem-vindo ao sistema de gestão musical",
       });
       
+      console.log("Navegando para /music-management após login bem-sucedido");
+      navigate("/music-management", { replace: true });
     } catch (error) {
       console.error("Erro no login:", error);
       toast({
@@ -51,7 +68,6 @@ export default function Login() {
         title: "Erro ao fazer login",
         description: "Email ou senha incorretos",
       });
-    } finally {
       setIsLoggingIn(false);
     }
   };
@@ -113,4 +129,6 @@ export default function Login() {
       </Card>
     </div>
   );
-}
+};
+
+export default Login;

@@ -5,10 +5,10 @@ import { createInertiaApp } from '@inertiajs/react';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createRoot } from 'react-dom/client';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { TooltipProvider } from '@/components/ui/tooltip';
-import { Toaster } from '@/components/ui/toaster';
-import { Toaster as Sonner } from '@/components/ui/sonner';
-import { AuthProvider } from '@/contexts/AuthContext';
+import { TooltipProvider } from './components/ui/tooltip';
+import { Toaster } from './components/ui/toaster';
+import { Toaster as Sonner } from './components/ui/sonner';
+import { AuthProvider } from './contexts/AuthContext';
 
 console.log('React app.jsx está sendo carregado');
 
