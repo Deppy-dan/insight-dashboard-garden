@@ -2,6 +2,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 
 /*
@@ -24,7 +25,8 @@ Route::get('/laravel-test', function () {
     return response()->json(['status' => 'Laravel está funcionando!']);
 });
 
-// Route to serve the React application on any other URL
-Route::get('/{path?}', function () {
-    return view('app');
+// Route to serve the React application with Inertia
+Route::get('/{path?}', function ($path = null) {
+    return Inertia::render('Login');
 })->where('path', '.*');
+

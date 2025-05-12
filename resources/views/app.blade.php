@@ -1,6 +1,6 @@
 
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="pt-BR">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -10,14 +10,15 @@
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- Vite Assets -->
+    @routes
     @viteReactRefresh
-    @vite(['resources/js/main.jsx'])
+    @vite(['resources/css/app.css', 'resources/js/app.jsx'])
+    @inertiaHead
 </head>
-<body class="antialiased">
-    <div id="root"></div>
+<body class="font-sans antialiased">
+    @inertia
+    
     <script>
-        // Add CSRF token to Ajax request headers
         window.csrfToken = "{{ csrf_token() }}";
         console.log('Blade template carregado');
     </script>
