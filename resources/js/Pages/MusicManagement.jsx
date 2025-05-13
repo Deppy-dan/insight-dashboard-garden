@@ -11,7 +11,7 @@ const MusicManagement = () => {
       </Helmet>
       <div className="container mx-auto py-10">
         <h1 className="text-3xl font-bold">Gerenciamento de Músicos</h1>
-        <p>Página em construção...</p>
+        <p className="text-muted-foreground">Página em construção...</p>
       </div>
     </Layout>
   );

@@ -1,8 +1,8 @@
 
 import React from 'react';
 import {
-  LineChart as RechartsLineChart,
-  Line,
+  BarChart as RechartsBarChart,
+  Bar,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -12,12 +12,12 @@ import {
 } from 'recharts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 
-const LineChart = ({
+const BarChart = ({
   data,
   title,
   description,
   xAxisDataKey,
-  lines,
+  bars,
   className,
   height = 300,
 }) => {
@@ -32,20 +32,20 @@ const LineChart = ({
       <CardContent className={title || description ? "pt-0" : "pt-6"}>
         <div style={{ height }}>
           <ResponsiveContainer width="100%" height="100%">
-            <RechartsLineChart
+            <RechartsBarChart
               data={data}
               margin={{ top: 10, right: 10, left: -10, bottom: 10 }}
             >
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border)/50)" />
               <XAxis 
-                dataKey={xAxisDataKey}
-                tick={{ fontSize: 12 }} 
+                dataKey={xAxisDataKey} 
+                tick={{ fontSize: 12 }}
                 tickLine={{ stroke: "hsl(var(--border))" }}
                 axisLine={{ stroke: "hsl(var(--border))" }}
               />
               <YAxis 
                 width={40} 
-                tick={{ fontSize: 12 }} 
+                tick={{ fontSize: 12 }}
                 tickLine={{ stroke: "hsl(var(--border))" }}
                 axisLine={{ stroke: "hsl(var(--border))" }}
               />
@@ -57,21 +57,19 @@ const LineChart = ({
                   boxShadow: '0 8px 30px rgba(0, 0, 0, 0.12)',
                 }}
                 itemStyle={{ color: 'hsl(var(--foreground))' }}
+                cursor={{ fill: 'hsl(var(--muted)/50)' }}
               />
               <Legend align="center" />
-              {lines.map((line, index) => (
-                <Line
+              {bars.map((bar, index) => (
+                <Bar
                   key={index}
-                  type="monotone"
-                  dataKey={line.dataKey}
-                  stroke={line.stroke}
-                  name={line.name}
-                  dot={{ strokeWidth: 2, r: 3 }}
-                  activeDot={{ r: 5 }}
-                  strokeWidth={2}
+                  dataKey={bar.dataKey}
+                  fill={bar.fill}
+                  name={bar.name}
+                  radius={[4, 4, 0, 0]}
                 />
               ))}
-            </RechartsLineChart>
+            </RechartsBarChart>
           </ResponsiveContainer>
         </div>
       </CardContent>
@@ -79,4 +77,4 @@ const LineChart = ({
   );
 };
 
-export default LineChart;
+export default BarChart;
